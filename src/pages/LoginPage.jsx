@@ -1,14 +1,124 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import { useToast } from '../components/Toast'
 import './AuthPages.css'
 
+/* ── Icons outside component to prevent remount ── */
+const IconEmail = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
+    <path d="M22 6l-10 7L2 6"/>
+  </svg>
+)
+const IconLock = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+  </svg>
+)
+const EyeOpen = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+)
+const EyeClosed = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
+    <line x1="1" y1="1" x2="23" y2="23"/>
+  </svg>
+)
+
+/* ── Google OAuth loading modal ── */
+const GoogleModal = ({ onClose }) => (
+  <div className="google-modal-overlay" onClick={onClose}>
+    <div className="google-modal" onClick={e => e.stopPropagation()}>
+      <div className="google-modal__header">
+        <svg width="32" height="32" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        <h3>Sign in with Google</h3>
+        <button className="google-modal__close" onClick={onClose}>✕</button>
+      </div>
+      <div className="google-modal__body">
+        <div className="google-modal__spinner">
+          <div className="google-modal__ring" />
+        </div>
+        <p className="google-modal__status">Connecting to Google...</p>
+        <p className="google-modal__note">
+          🔧 Google OAuth requires backend setup.<br/>
+          This will be fully functional once the Node.js server is connected.
+        </p>
+        <div className="google-modal__steps">
+          {['Configure Google Cloud Project', 'Add OAuth credentials to backend', 'Enable redirect URI'].map((s, i) => (
+            <div key={i} className="google-modal__step">
+              <div className="google-modal__step-dot" style={{ background: i === 0 ? '#10B981' : i === 1 ? '#F59E0B' : '#E5E7EB' }} />
+              <span style={{ color: i === 2 ? '#9CA3AF' : 'inherit' }}>{s}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <button className="google-modal__dismiss btn btn--primary" onClick={onClose}>
+        Got it, I'll use email for now
+      </button>
+    </div>
+  </div>
+)
+
+/* ── Aadhaar modal ── */
+const AadhaarModal = ({ onClose }) => (
+  <div className="google-modal-overlay" onClick={onClose}>
+    <div className="google-modal aadhaar-modal" onClick={e => e.stopPropagation()}>
+      <div className="google-modal__header">
+        <div className="aadhaar-modal__icon">🪪</div>
+        <h3>Login with Aadhaar</h3>
+        <button className="google-modal__close" onClick={onClose}>✕</button>
+      </div>
+      <div className="google-modal__body">
+        <p className="google-modal__note" style={{ marginTop: 0 }}>
+          Aadhaar-based authentication uses <strong>UIDAI's OTP verification</strong> API.
+          It will be enabled once the backend is integrated.
+        </p>
+        <div className="aadhaar-modal__how">
+          <div className="aadhaar-modal__step">
+            <span className="aadhaar-modal__num">1</span>
+            <span>Enter your 12-digit Aadhaar number</span>
+          </div>
+          <div className="aadhaar-modal__step">
+            <span className="aadhaar-modal__num">2</span>
+            <span>Receive OTP on Aadhaar-linked mobile</span>
+          </div>
+          <div className="aadhaar-modal__step">
+            <span className="aadhaar-modal__num">3</span>
+            <span>Verify and login securely</span>
+          </div>
+        </div>
+        <div className="aadhaar-modal__badge">
+          🔒 &nbsp;100% secure · UIDAI certified · No data stored
+        </div>
+      </div>
+      <button className="google-modal__dismiss btn btn--primary" onClick={onClose}>
+        Understood, use email for now
+      </button>
+    </div>
+  </div>
+)
+
+/* ════════════════════════════════════════════
+   LOGIN PAGE
+════════════════════════════════════════════ */
 const LoginPage = () => {
+  const toast = useToast()
   const [form, setForm] = useState({ identifier: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const [focusedField, setFocusedField] = useState(null)
+  const [showGoogleModal, setShowGoogleModal] = useState(false)
+  const [showAadhaarModal, setShowAadhaarModal] = useState(false)
 
   const validate = () => {
     const errs = {}
@@ -27,18 +137,42 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const errs = validate()
-    if (Object.keys(errs).length > 0) { setErrors(errs); return }
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+      toast.show({ type: 'error', title: 'Check your details', message: 'Please fix the errors before continuing.' })
+      return
+    }
     setLoading(true)
-    await new Promise(r => setTimeout(r, 1500))
+    toast.show({ type: 'info', title: 'Signing in...', message: 'Verifying your credentials.' })
+    await new Promise(r => setTimeout(r, 1800))
     setLoading(false)
-    alert('Login successful! (Backend integration coming soon)')
+    toast.show({ type: 'success', title: 'Welcome back! 🎉', message: 'Login successful. Redirecting to your dashboard.' })
+  }
+
+  const handleGoogle = () => {
+    setShowGoogleModal(true)
+  }
+
+  const handleAadhaar = () => {
+    setShowAadhaarModal(true)
+  }
+
+  const handleForgotPassword = (e) => {
+    e.preventDefault()
+    toast.show({
+      type: 'info',
+      title: 'Password Reset',
+      message: 'Enter your registered email and we\'ll send a reset link. (Feature coming soon)',
+    })
   }
 
   return (
     <div className="auth-page">
       <Navbar />
 
-      {/* Background */}
+      {showGoogleModal && <GoogleModal onClose={() => setShowGoogleModal(false)} />}
+      {showAadhaarModal && <AadhaarModal onClose={() => setShowAadhaarModal(false)} />}
+
       <div className="auth-bg">
         <div className="auth-bg__orb auth-bg__orb--1" />
         <div className="auth-bg__orb auth-bg__orb--2" />
@@ -46,7 +180,7 @@ const LoginPage = () => {
       </div>
 
       <div className="auth-container">
-        {/* Left Panel — Brand */}
+        {/* ── Brand Panel ── */}
         <div className="auth-panel auth-panel--brand">
           <div className="auth-brand">
             <div className="auth-brand__badge">🇮🇳 For Every Indian Citizen</div>
@@ -83,8 +217,6 @@ const LoginPage = () => {
               </div>
             </div>
           </div>
-
-          {/* Decorative floating cards */}
           <div className="auth-float-card auth-float-card--1">
             <span>✅</span><span>Scheme Matched!</span>
           </div>
@@ -93,10 +225,9 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Right Panel — Form */}
+        {/* ── Form Panel ── */}
         <div className="auth-panel auth-panel--form">
           <div className="auth-form-wrap">
-            {/* Header */}
             <div className="auth-form__header">
               <Link to="/" className="auth-form__back">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -125,7 +256,7 @@ const LoginPage = () => {
 
             {/* Social Buttons */}
             <div className="auth-social-btns">
-              <button className="auth-social-btn" id="google-login-btn" type="button">
+              <button className="auth-social-btn" id="google-login-btn" type="button" onClick={handleGoogle}>
                 <svg width="20" height="20" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                   <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -135,7 +266,7 @@ const LoginPage = () => {
                 Continue with Google
               </button>
 
-              <button className="auth-social-btn auth-social-btn--aadhaar" id="aadhaar-login-btn" type="button">
+              <button className="auth-social-btn auth-social-btn--aadhaar" id="aadhaar-login-btn" type="button" onClick={handleAadhaar}>
                 <div className="aadhaar-icon">
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                     <rect x="2" y="4" width="20" height="16" rx="3" fill="currentColor" opacity="0.15"/>
@@ -150,7 +281,6 @@ const LoginPage = () => {
               </button>
             </div>
 
-            {/* OR Divider */}
             <div className="auth-divider">
               <div className="auth-divider__line" />
               <span className="auth-divider__text">or continue with email</span>
@@ -159,56 +289,47 @@ const LoginPage = () => {
 
             {/* Form */}
             <form className="auth-form" onSubmit={handleSubmit} noValidate>
-              {/* Email/Phone Field */}
+              {/* Email/Phone */}
               <div className={`auth-field ${focusedField === 'identifier' ? 'auth-field--focused' : ''} ${errors.identifier ? 'auth-field--error' : ''} ${form.identifier ? 'auth-field--filled' : ''}`}>
-                <label className="auth-field__label" htmlFor="login-identifier">
-                  Email or Phone Number
-                </label>
+                <label className="auth-field__label" htmlFor="login-identifier">Email or Phone Number</label>
                 <div className="auth-field__input-wrap">
-                  <div className="auth-field__icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
-                      <path d="M22 6l-10 7L2 6"/>
-                    </svg>
-                  </div>
+                  <div className="auth-field__icon"><IconEmail /></div>
                   <input
                     id="login-identifier"
                     name="identifier"
                     type="text"
                     className="auth-field__input"
-                    placeholder="you@example.com or +91 98765 43210"
+                    placeholder="you@example.com or 98765 43210"
                     value={form.identifier}
                     onChange={handleChange}
                     onFocus={() => setFocusedField('identifier')}
                     onBlur={() => setFocusedField(null)}
                     autoComplete="email"
                   />
+                  {form.identifier && !errors.identifier && (
+                    <div className="auth-field__check">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12l5 5L20 7"/></svg>
+                    </div>
+                  )}
                 </div>
                 {errors.identifier && (
                   <div className="auth-field__error">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
-                    </svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
                     {errors.identifier}
                   </div>
                 )}
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div className={`auth-field ${focusedField === 'password' ? 'auth-field--focused' : ''} ${errors.password ? 'auth-field--error' : ''} ${form.password ? 'auth-field--filled' : ''}`}>
                 <div className="auth-field__label-row">
                   <label className="auth-field__label" htmlFor="login-password">Password</label>
-                  <Link to="/forgot-password" className="auth-field__forgot" id="forgot-password-link">
+                  <a href="#" className="auth-field__forgot" id="forgot-password-link" onClick={handleForgotPassword}>
                     Forgot Password?
-                  </Link>
+                  </a>
                 </div>
                 <div className="auth-field__input-wrap">
-                  <div className="auth-field__icon">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                      <path d="M7 11V7a5 5 0 0110 0v4"/>
-                    </svg>
-                  </div>
+                  <div className="auth-field__icon"><IconLock /></div>
                   <input
                     id="login-password"
                     name="password"
@@ -221,38 +342,18 @@ const LoginPage = () => {
                     onBlur={() => setFocusedField(null)}
                     autoComplete="current-password"
                   />
-                  <button
-                    type="button"
-                    className="auth-field__toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    id="toggle-password-btn"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/>
-                        <path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/>
-                        <line x1="1" y1="1" x2="23" y2="23"/>
-                      </svg>
-                    ) : (
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                    )}
+                  <button type="button" className="auth-field__toggle" onClick={() => setShowPassword(p => !p)} id="toggle-password-btn" aria-label="Toggle password visibility">
+                    {showPassword ? <EyeClosed /> : <EyeOpen />}
                   </button>
                 </div>
                 {errors.password && (
                   <div className="auth-field__error">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
-                    </svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
                     {errors.password}
                   </div>
                 )}
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 className={`auth-submit-btn ${loading ? 'auth-submit-btn--loading' : ''}`}
@@ -260,13 +361,9 @@ const LoginPage = () => {
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <div className="auth-spinner" />
-                    Signing In...
-                  </>
+                  <><div className="auth-spinner" />Signing In...</>
                 ) : (
-                  <>
-                    Sign In to NammaSeva
+                  <>Sign In to NammaSeva
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M5 12h14M12 5l7 7-7 7"/>
                     </svg>
@@ -275,12 +372,9 @@ const LoginPage = () => {
               </button>
             </form>
 
-            {/* Footer Link */}
             <p className="auth-form__footer-link">
               Don't have an account?{' '}
-              <Link to="/register" id="go-to-register-link">
-                Register Free →
-              </Link>
+              <Link to="/register" id="go-to-register-link">Register Free →</Link>
             </p>
           </div>
         </div>

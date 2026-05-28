@@ -7,7 +7,7 @@
 .auth-page {
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   background: var(--off-white);
@@ -955,7 +955,216 @@
     padding: 12px 16px;
   }
 
+  .auth-field__input {
+    font-size: 16px; /* Prevents iOS auto-zoom */
+  }
+
   .aadhaar-badge {
     display: none;
   }
+}
+
+/* ============================================
+   MODALS (Google & Aadhaar)
+============================================ */
+.google-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 45, 107, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.google-modal {
+  background: white;
+  width: 100%;
+  max-width: 440px;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 24px 60px rgba(11, 45, 107, 0.2);
+  overflow: hidden;
+  animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.google-modal__header {
+  padding: 24px;
+  border-bottom: 1px solid var(--gray-100);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.google-modal__header h3 {
+  font-family: var(--font-primary);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.google-modal__close {
+  position: absolute;
+  right: 24px;
+  background: var(--gray-50);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.google-modal__close:hover {
+  background: var(--gray-200);
+  color: var(--gray-800);
+}
+
+.google-modal__body {
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.google-modal__spinner {
+  margin-bottom: 24px;
+}
+
+.google-modal__ring {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--gray-100);
+  border-top-color: #4285F4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.google-modal__status {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin-bottom: 12px;
+}
+
+.google-modal__note {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  background: var(--gray-50);
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+  width: 100%;
+  text-align: left;
+}
+
+.google-modal__steps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.google-modal__step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-700);
+}
+
+.google-modal__step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.google-modal__dismiss {
+  width: 100%;
+  padding: 20px;
+  background: var(--gray-50);
+  border: none;
+  border-top: 1px solid var(--gray-100);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.google-modal__dismiss:hover {
+  background: var(--gray-100);
+  color: var(--gray-900);
+}
+
+/* Aadhaar Modal Specifics */
+.aadhaar-modal__icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.aadhaar-modal__how {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.aadhaar-modal__step {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--white);
+  padding: 16px;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-800);
+}
+
+.aadhaar-modal__num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0B2D6B, #1a3d8a);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.aadhaar-modal__badge {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+@keyframes modalSlideUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
