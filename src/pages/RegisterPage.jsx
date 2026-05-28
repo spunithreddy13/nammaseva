@@ -513,7 +513,7 @@ const RegisterPage = () => {
               <div className="auth-trust-bar__divider" />
               <div className="auth-trust-bar__item"><strong>500+</strong><span>Schemes</span></div>
               <div className="auth-trust-bar__divider" />
-              <div className="auth-trust-bar__item"><strong>4.9★</strong><span>Rating</span></div>
+              <div className="auth-trust-bar__item"><strong>5</strong><span>States</span></div>
             </div>
           </div>
         </div>

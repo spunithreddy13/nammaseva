@@ -196,18 +196,6 @@ const LoginPage = () => {
                 </div>
               ))}
             </div>
-
-            <div className="auth-brand__testimonial">
-              <div className="auth-brand__quote">"</div>
-              <p>NammaSeva helped me find schemes I never knew existed. I received ₹8,000 in benefits within a month!</p>
-              <div className="auth-brand__author">
-                <div className="auth-brand__author-avatar" style={{ background: '#059669' }}>R</div>
-                <div>
-                  <strong>Rajesh Kumar</strong>
-                  <span>Farmer, Tumkur</span>
-                </div>
-              </div>
-            </div>
           </div>
           <div className="auth-float-card auth-float-card--1">
             <span>✅</span><span>Scheme Matched!</span>

@@ -119,28 +119,8 @@ const HeroSection = () => {
             </a>
           </div>
 
-          {/* Trust Indicators */}
-          <div className="hero__trust animate-fadeInUp delay-500">
-            <div className="hero__trust-avatars">
-              {[1,2,3,4].map(i => (
-                <div key={i} className="hero__avatar" style={{ background: `hsl(${i * 60}, 60%, 55%)` }}>
-                  {['R','S','P','A'][i-1]}
-                </div>
-              ))}
-            </div>
-            <div className="hero__trust-text">
-              <span className="hero__trust-count">1,200+</span>
-              <span className="hero__trust-label">citizens already benefiting</span>
-            </div>
-            <div className="hero__trust-divider" />
-            <div className="hero__trust-rating">
-              <div className="hero__stars">
-                {'★★★★★'.split('').map((s, i) => <span key={i}>{s}</span>)}
-              </div>
-              <span>4.9/5 rating</span>
-            </div>
           </div>
-        </div>
+
 
         {/* Right Visual */}
         <div className="hero__visual animate-fadeInRight delay-300">
