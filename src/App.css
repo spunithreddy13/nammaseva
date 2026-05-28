@@ -1,0 +1,6 @@
+/* App.css - Component-level styles */
+
+.app {
+  min-height: 100vh;
+  overflow-x: hidden;
+}

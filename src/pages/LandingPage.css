@@ -1,0 +1,116 @@
+/* ============================================
+   LANDING PAGE & CTA BANNER
+============================================ */
+.landing {
+  overflow-x: hidden;
+}
+
+/* CTA Banner */
+.cta-banner {
+  background: var(--gradient-hero);
+  padding: var(--section-padding);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-banner__inner {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  z-index: 2;
+}
+
+.cta-banner__orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(60px);
+}
+
+.cta-banner__orb--1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,107,0,0.2), transparent);
+  top: -200px;
+  left: -100px;
+}
+
+.cta-banner__orb--2 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255,140,56,0.15), transparent);
+  bottom: -150px;
+  right: -50px;
+}
+
+.cta-banner__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.cta-banner__icon {
+  font-size: 56px;
+  animation: wave 2.5s ease-in-out infinite;
+}
+
+.cta-banner__title {
+  font-family: var(--font-primary);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1.2;
+  letter-spacing: -1px;
+}
+
+.cta-banner__subtitle {
+  font-size: 17px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.7;
+  max-width: 580px;
+}
+
+.cta-banner__subtitle strong {
+  color: var(--saffron);
+}
+
+.cta-banner__actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cta-banner__features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.cta-banner__feature {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.cta-banner__feature svg {
+  color: var(--saffron);
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .cta-banner__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .cta-banner__actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
