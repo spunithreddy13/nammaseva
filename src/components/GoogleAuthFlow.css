@@ -1,5 +1,5 @@
 /* ============================================
-   GOOGLE AUTH FLOW — Pixel-perfect Google UI
+   GOOGLE AUTH FLOW — Real OAuth UI
 ============================================ */
 
 /* Overlay */
@@ -525,4 +525,81 @@
   .gaf-title {
     font-size: 20px;
   }
+}
+
+/* ── Setup Guide ── */
+.gaf-setup-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.gaf-setup-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 14px;
+  color: #202124;
+  line-height: 1.6;
+}
+
+.gaf-setup-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1a73e8;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.gaf-setup-code {
+  margin-top: 6px;
+  padding: 6px 12px;
+  background: #f1f3f4;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #202124;
+  word-break: break-all;
+}
+
+.gaf-setup-step a {
+  color: #1a73e8;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.gaf-setup-step a:hover {
+  text-decoration: underline;
+}
+
+.gaf-setup-step code {
+  background: #f1f3f4;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* ── Real profile photo in success screen ── */
+.gaf-success-photo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  animation: avatarPop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 3px solid #34A853;
+}
+
+.gaf-success-email {
+  font-size: 13px;
+  color: #5f6368;
+  margin: 0;
 }

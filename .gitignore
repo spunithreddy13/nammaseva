@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables (keep Client IDs private)
+.env
+.env.local
+.env.*.local

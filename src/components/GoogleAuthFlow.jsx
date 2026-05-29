@@ -1,7 +1,13 @@
+import { useGoogleLogin } from '@react-oauth/google'
 import { useState, useEffect } from 'react'
 import './GoogleAuthFlow.css'
 
-/* ── Animated Google "G" SVG ── */
+const CLIENT_ID_SET = !!(
+  import.meta.env.VITE_GOOGLE_CLIENT_ID &&
+  import.meta.env.VITE_GOOGLE_CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID_HERE'
+)
+
+/* ── Google "G" icon ── */
 const GoogleG = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -11,228 +17,102 @@ const GoogleG = ({ size = 24 }) => (
   </svg>
 )
 
-/* ── Fake demo accounts ── */
-const DEMO_ACCOUNTS = [
-  {
-    id: 1,
-    name: 'Rahul Sharma',
-    email: 'rahul.sharma@gmail.com',
-    avatar: 'RS',
-    avatarColor: '#1a73e8',
-  },
-  {
-    id: 2,
-    name: 'Priya Nair',
-    email: 'priya.nair@gmail.com',
-    avatar: 'PN',
-    avatarColor: '#059669',
-  },
-]
-
-/* ── Steps ── */
-const STEP = {
-  PICKER: 'picker',
-  SIGNING_IN: 'signing_in',
-  SUCCESS: 'success',
-}
-
-const GoogleAuthFlow = ({ onClose, onSuccess, mode = 'login' }) => {
-  const [step, setStep] = useState(STEP.PICKER)
-  const [selectedAccount, setSelectedAccount] = useState(null)
-  const [useOtherEmail, setUseOtherEmail] = useState(false)
-  const [email, setEmail] = useState('')
-  const [emailError, setEmailError] = useState('')
+/* ── Setup instructions shown when no Client ID is configured ── */
+const SetupGuide = ({ onClose }) => {
   const [visible, setVisible] = useState(false)
-
-  /* mount animation */
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true))
-  }, [])
-
-  const handleClose = () => {
-    setVisible(false)
-    setTimeout(onClose, 300)
-  }
-
-  const handleAccountSelect = (account) => {
-    setSelectedAccount(account)
-    setStep(STEP.SIGNING_IN)
-    /* simulate OAuth flow */
-    setTimeout(() => {
-      setStep(STEP.SUCCESS)
-      setTimeout(() => {
-        handleClose()
-        onSuccess && onSuccess(account)
-      }, 1800)
-    }, 2200)
-  }
-
-  const handleOtherEmail = (e) => {
-    e.preventDefault()
-    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-      setEmailError('Enter a valid Gmail address')
-      return
-    }
-    setEmailError('')
-    const fakeAccount = {
-      id: 99,
-      name: email.split('@')[0].replace(/\./g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-      email,
-      avatar: email[0].toUpperCase(),
-      avatarColor: '#7C3AED',
-    }
-    handleAccountSelect(fakeAccount)
-  }
+  useEffect(() => { requestAnimationFrame(() => setVisible(true)) }, [])
+  const handleClose = () => { setVisible(false); setTimeout(onClose, 300) }
 
   return (
     <div className={`gaf-overlay ${visible ? 'gaf-overlay--visible' : ''}`} onClick={handleClose}>
-      <div
-        className={`gaf-popup ${visible ? 'gaf-popup--visible' : ''}`}
-        onClick={e => e.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Sign in with Google"
-      >
-        {/* Header */}
+      <div className={`gaf-popup ${visible ? 'gaf-popup--visible' : ''}`} onClick={e => e.stopPropagation()}>
         <div className="gaf-header">
-          <div className="gaf-header__logo">
-            <GoogleG size={28} />
-          </div>
+          <GoogleG size={28} />
           <button className="gaf-header__close" onClick={handleClose} aria-label="Close">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
-
-        {/* ── STEP: Account Picker ── */}
-        {step === STEP.PICKER && (
-          <div className="gaf-body gaf-body--picker">
-            <div className="gaf-title-block">
-              <h2 className="gaf-title">Sign in</h2>
-              <p className="gaf-subtitle">to continue to <strong>NammaSeva</strong></p>
-            </div>
-
-            {!useOtherEmail ? (
-              <>
-                <p className="gaf-hint">Choose an account</p>
-                <div className="gaf-accounts">
-                  {DEMO_ACCOUNTS.map(acc => (
-                    <button
-                      key={acc.id}
-                      className="gaf-account"
-                      onClick={() => handleAccountSelect(acc)}
-                    >
-                      <div className="gaf-account__avatar" style={{ background: acc.avatarColor }}>
-                        {acc.avatar}
-                      </div>
-                      <div className="gaf-account__info">
-                        <span className="gaf-account__name">{acc.name}</span>
-                        <span className="gaf-account__email">{acc.email}</span>
-                      </div>
-                      <svg className="gaf-account__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M9 18l6-6-6-6"/>
-                      </svg>
-                    </button>
-                  ))}
-
-                  <button
-                    className="gaf-account gaf-account--other"
-                    onClick={() => setUseOtherEmail(true)}
-                  >
-                    <div className="gaf-account__avatar gaf-account__avatar--other">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/>
-                      </svg>
-                    </div>
-                    <div className="gaf-account__info">
-                      <span className="gaf-account__name">Use another account</span>
-                    </div>
-                    <svg className="gaf-account__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* Other email form */
-              <form className="gaf-email-form" onSubmit={handleOtherEmail} noValidate>
-                <div className={`gaf-email-field ${emailError ? 'gaf-email-field--error' : ''}`}>
-                  <label className="gaf-email-label" htmlFor="gaf-email-input">Email address</label>
-                  <div className="gaf-email-input-wrap">
-                    <input
-                      id="gaf-email-input"
-                      type="email"
-                      className="gaf-email-input"
-                      placeholder="you@gmail.com"
-                      value={email}
-                      onChange={e => { setEmail(e.target.value); setEmailError('') }}
-                      autoFocus
-                      autoComplete="email"
-                    />
-                  </div>
-                  {emailError && <p className="gaf-email-error">{emailError}</p>}
-                </div>
-
-                <p className="gaf-forgot-link">
-                  <a href="#" onClick={e => e.preventDefault()}>Forgot email?</a>
-                </p>
-
-                <p className="gaf-note">
-                  Not your computer? Use a Private Window to sign in.{' '}
-                  <a href="#" onClick={e => e.preventDefault()}>Learn more</a>
-                </p>
-
-                <div className="gaf-actions">
-                  <button type="button" className="gaf-btn gaf-btn--text" onClick={() => setUseOtherEmail(false)}>
-                    Back
-                  </button>
-                  <button type="submit" className="gaf-btn gaf-btn--primary">
-                    Next
-                  </button>
-                </div>
-              </form>
-            )}
-
-            <div className="gaf-footer">
-              <a href="#" onClick={e => e.preventDefault()}>Privacy Policy</a>
-              <span>•</span>
-              <a href="#" onClick={e => e.preventDefault()}>Terms of Service</a>
-            </div>
+        <div className="gaf-body">
+          <div className="gaf-title-block">
+            <h2 className="gaf-title">Google Sign-In</h2>
+            <p className="gaf-subtitle">Setup required — takes 2 minutes</p>
           </div>
-        )}
 
-        {/* ── STEP: Signing In ── */}
-        {step === STEP.SIGNING_IN && (
-          <div className="gaf-body gaf-body--signing">
-            <div className="gaf-signing-avatar" style={{ background: selectedAccount?.avatarColor }}>
-              {selectedAccount?.avatar}
-            </div>
-            <h2 className="gaf-signing-name">{selectedAccount?.name}</h2>
-            <p className="gaf-signing-email">{selectedAccount?.email}</p>
-
-            <div className="gaf-signing-dots">
-              <span /><span /><span />
-            </div>
-            <p className="gaf-signing-msg">Signing you in…</p>
-
-            <div className="gaf-signing-perms">
-              <p className="gaf-signing-perms__title">NammaSeva will receive:</p>
-              <div className="gaf-perm-item">
-                <span className="gaf-perm-icon">📧</span>
-                <span>Your email address</span>
+          <div className="gaf-setup-steps">
+            <div className="gaf-setup-step">
+              <div className="gaf-setup-num">1</div>
+              <div>
+                Go to{' '}
+                <a href="https://console.cloud.google.com/" target="_blank" rel="noreferrer">
+                  console.cloud.google.com
+                </a>
               </div>
-              <div className="gaf-perm-item">
-                <span className="gaf-perm-icon">👤</span>
-                <span>Your basic profile info</span>
+            </div>
+            <div className="gaf-setup-step">
+              <div className="gaf-setup-num">2</div>
+              <div>Create a project → <strong>APIs &amp; Services</strong> → <strong>Credentials</strong></div>
+            </div>
+            <div className="gaf-setup-step">
+              <div className="gaf-setup-num">3</div>
+              <div>Click <strong>Create Credentials</strong> → <strong>OAuth 2.0 Client ID</strong> → Web application</div>
+            </div>
+            <div className="gaf-setup-step">
+              <div className="gaf-setup-num">4</div>
+              <div>
+                Add these <strong>Authorized JavaScript origins</strong>:
+                <div className="gaf-setup-code">http://localhost:5173</div>
+                <div className="gaf-setup-code">https://your-app.vercel.app</div>
+              </div>
+            </div>
+            <div className="gaf-setup-step">
+              <div className="gaf-setup-num">5</div>
+              <div>
+                Copy the <strong>Client ID</strong> and paste it in your <code>.env</code> file:
+                <div className="gaf-setup-code">VITE_GOOGLE_CLIENT_ID=your-client-id-here</div>
               </div>
             </div>
           </div>
-        )}
 
-        {/* ── STEP: Success ── */}
-        {step === STEP.SUCCESS && (
-          <div className="gaf-body gaf-body--success">
+          <div className="gaf-actions" style={{ justifyContent: 'flex-end', gap: 12, marginTop: 8 }}>
+            <button className="gaf-btn gaf-btn--text" onClick={handleClose}>Close</button>
+            <a
+              href="https://console.cloud.google.com/apis/credentials"
+              target="_blank"
+              rel="noreferrer"
+              className="gaf-btn gaf-btn--primary"
+              style={{ textDecoration: 'none' }}
+            >
+              Open Google Console →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Success screen after real OAuth ── */
+const SuccessScreen = ({ user, onClose }) => {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    requestAnimationFrame(() => setVisible(true))
+    const t = setTimeout(() => { setVisible(false); setTimeout(onClose, 300) }, 2500)
+    return () => clearTimeout(t)
+  }, [onClose])
+
+  return (
+    <div className={`gaf-overlay ${visible ? 'gaf-overlay--visible' : ''}`}>
+      <div className={`gaf-popup ${visible ? 'gaf-popup--visible' : ''}`}>
+        <div className="gaf-body gaf-body--success">
+          {user?.picture ? (
+            <img
+              src={user.picture}
+              alt={user.name}
+              className="gaf-success-photo"
+            />
+          ) : (
             <div className="gaf-success-ring">
               <svg width="56" height="56" viewBox="0 0 56 56">
                 <circle cx="28" cy="28" r="26" fill="none" stroke="#e8f5e9" strokeWidth="4"/>
@@ -242,11 +122,125 @@ const GoogleAuthFlow = ({ onClose, onSuccess, mode = 'login' }) => {
                   strokeLinecap="round" strokeLinejoin="round" strokeDasharray="30" strokeDashoffset="30"/>
               </svg>
             </div>
-            <h2 className="gaf-success-title">You're signed in!</h2>
-            <p className="gaf-success-sub">Welcome, {selectedAccount?.name.split(' ')[0]} 👋</p>
-            <p className="gaf-success-redirect">Redirecting to NammaSeva…</p>
+          )}
+          <h2 className="gaf-success-title">You're signed in!</h2>
+          <p className="gaf-success-sub">Welcome, {user?.given_name || user?.name?.split(' ')[0]} 👋</p>
+          <p className="gaf-success-email">{user?.email}</p>
+          <p className="gaf-success-redirect">Redirecting to NammaSeva…</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ════════════════════════════════════════════
+   MAIN COMPONENT — Real Google OAuth
+════════════════════════════════════════════ */
+const GoogleAuthFlow = ({ onClose, onSuccess }) => {
+  const [step, setStep] = useState('idle') // idle | loading | success | setup
+  const [user, setUser] = useState(null)
+  const [error, setError] = useState(null)
+
+  /* If no Client ID configured, show setup guide */
+  if (!CLIENT_ID_SET) {
+    return <SetupGuide onClose={onClose} />
+  }
+
+  /* Real Google Login — opens native Google account picker */
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setStep('loading')
+      try {
+        /* Fetch user profile from Google */
+        const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        })
+        const profile = await res.json()
+        setUser(profile)
+        setStep('success')
+        onSuccess && onSuccess(profile)
+      } catch {
+        setError('Could not fetch your profile. Please try again.')
+        setStep('error')
+      }
+    },
+    onError: (err) => {
+      if (err.error !== 'access_denied') {
+        setError('Sign-in failed. Please try again.')
+        setStep('error')
+      } else {
+        onClose()
+      }
+    },
+    flow: 'implicit',
+  })
+
+  /* Trigger login immediately when component mounts */
+  useEffect(() => {
+    const t = setTimeout(() => login(), 100)
+    return () => clearTimeout(t)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (step === 'success' && user) {
+    return <SuccessScreen user={user} onClose={onClose} />
+  }
+
+  if (step === 'loading') {
+    return (
+      <div className="gaf-overlay gaf-overlay--visible">
+        <div className="gaf-popup gaf-popup--visible">
+          <div className="gaf-body gaf-body--signing">
+            <div className="gaf-signing-dots">
+              <span /><span /><span />
+            </div>
+            <p className="gaf-signing-msg">Signing you in with Google…</p>
           </div>
-        )}
+        </div>
+      </div>
+    )
+  }
+
+  if (step === 'error') {
+    return (
+      <div className="gaf-overlay gaf-overlay--visible" onClick={onClose}>
+        <div className="gaf-popup gaf-popup--visible" onClick={e => e.stopPropagation()}>
+          <div className="gaf-header">
+            <GoogleG size={28} />
+            <button className="gaf-header__close" onClick={onClose} aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <div className="gaf-body" style={{ textAlign: 'center', padding: '24px' }}>
+            <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
+            <p style={{ color: '#d93025', fontWeight: 600, marginBottom: 8 }}>{error}</p>
+            <div className="gaf-actions" style={{ justifyContent: 'center', marginTop: 16 }}>
+              <button className="gaf-btn gaf-btn--primary" onClick={() => { setError(null); setStep('idle'); setTimeout(() => login(), 100) }}>
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  /* idle — show a brief loading state while popup opens */
+  return (
+    <div className="gaf-overlay gaf-overlay--visible">
+      <div className="gaf-popup gaf-popup--visible">
+        <div className="gaf-body gaf-body--signing">
+          <GoogleG size={40} />
+          <p className="gaf-signing-msg" style={{ marginTop: 16 }}>
+            Opening Google sign-in…
+          </p>
+          <p style={{ fontSize: 13, color: '#9aa0a6', marginTop: 4 }}>
+            A popup window will appear
+          </p>
+        </div>
       </div>
     </div>
   )
