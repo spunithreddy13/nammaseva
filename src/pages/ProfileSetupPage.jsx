@@ -93,6 +93,7 @@ const ProfileSetupPage = () => {
     fullName: '',
     dob: '',
     gender: '',
+    maritalStatus: '',
     photo: null,
     // Step 2
     state: '',
@@ -101,6 +102,7 @@ const ProfileSetupPage = () => {
     language: '',
     // Step 3
     caste: '',
+    familySize: 3,
     income: '',
     occupation: '',
     // Step 4
@@ -152,6 +154,7 @@ const ProfileSetupPage = () => {
         if (age < 5 || age > 120) errs.dob = 'Enter a valid date of birth'
       }
       if (!form.gender) errs.gender = 'Please select your gender'
+      if (!form.maritalStatus) errs.maritalStatus = 'Please select your marital status'
     }
     if (step === 2) {
       if (!form.state) errs.state = 'Please select your state'
@@ -361,6 +364,28 @@ const ProfileSetupPage = () => {
                     </div>
                   </Field>
                 </div>
+
+                {/* Marital Status */}
+                <Field label="Marital Status" required error={errors.maritalStatus}>
+                  <div className="ps-marital-group">
+                    {[
+                      { value: 'single',   label: 'Single',   icon: '🧑' },
+                      { value: 'married',  label: 'Married',  icon: '💑' },
+                      { value: 'widowed',  label: 'Widowed',  icon: '🕊️' },
+                      { value: 'divorced', label: 'Divorced', icon: '📋' },
+                    ].map(m => (
+                      <button
+                        key={m.value}
+                        type="button"
+                        className={`ps-marital-btn ${form.maritalStatus === m.value ? 'ps-marital-btn--active' : ''}`}
+                        onClick={() => set('maritalStatus', m.value)}
+                      >
+                        <span className="ps-marital-icon">{m.icon}</span>
+                        <span>{m.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </Field>
               </div>
             </div>
           )}
@@ -471,6 +496,50 @@ const ProfileSetupPage = () => {
                   </div>
                 </Field>
 
+                {/* Family Size */}
+                <Field label="Family Size" required error={errors.familySize} hint="Including yourself">
+                  <div className="ps-stepper">
+                    <button
+                      type="button"
+                      className="ps-stepper__btn"
+                      onClick={() => set('familySize', Math.max(1, form.familySize - 1))}
+                      disabled={form.familySize <= 1}
+                      aria-label="Decrease"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14"/></svg>
+                    </button>
+                    <div className="ps-stepper__display">
+                      <span className="ps-stepper__number">{form.familySize}</span>
+                      <span className="ps-stepper__label">
+                        {form.familySize === 1 ? 'Only you' : `${form.familySize} members`}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className="ps-stepper__btn"
+                      onClick={() => set('familySize', Math.min(20, form.familySize + 1))}
+                      disabled={form.familySize >= 20}
+                      aria-label="Increase"
+                    >
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                    <div className="ps-stepper__dots">
+                      {[1,2,3,4,5,6,7,8].map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          className={`ps-stepper__dot ${form.familySize === n ? 'ps-stepper__dot--active' : form.familySize > n ? 'ps-stepper__dot--past' : ''}`}
+                          onClick={() => set('familySize', n)}
+                          aria-label={`${n} members`}
+                        />
+                      ))}
+                      {form.familySize > 8 && (
+                        <span className="ps-stepper__more">+{form.familySize - 8}</span>
+                      )}
+                    </div>
+                  </div>
+                </Field>
+
                 <Field label="Annual Family Income" required error={errors.income}>
                   <div className="ps-income-group">
                     {INCOMES.map(inc => (
@@ -570,6 +639,8 @@ const ProfileSetupPage = () => {
                     {form.fullName && <div className="ps-summary__row"><span>Name</span><strong>{form.fullName}</strong></div>}
                     {form.state && <div className="ps-summary__row"><span>Location</span><strong>{form.district ? `${form.district}, ` : ''}{form.state}</strong></div>}
                     {form.occupation && <div className="ps-summary__row"><span>Occupation</span><strong>{OCCUPATIONS.find(o => o.value === form.occupation)?.label}</strong></div>}
+                    {form.maritalStatus && <div className="ps-summary__row"><span>Marital</span><strong style={{ textTransform: 'capitalize' }}>{form.maritalStatus}</strong></div>}
+                    {form.familySize && <div className="ps-summary__row"><span>Family</span><strong>{form.familySize} {form.familySize === 1 ? 'member' : 'members'}</strong></div>}
                     {form.income && <div className="ps-summary__row"><span>Income</span><strong>{form.income}</strong></div>}
                     <div className="ps-summary__row">
                       <span>Interests</span>
