@@ -152,7 +152,6 @@ const GoogleAuthFlow = ({ onClose, onSuccess }) => {
     onSuccess: async (tokenResponse) => {
       setStep('loading')
       try {
-        /* Fetch user profile from Google */
         const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         })
@@ -166,12 +165,17 @@ const GoogleAuthFlow = ({ onClose, onSuccess }) => {
       }
     },
     onError: (err) => {
-      if (err.error !== 'access_denied') {
+      // User cancelled popup or any error — just close cleanly
+      if (err?.error === 'access_denied' || err?.error === 'popup_closed_by_user') {
+        onClose()
+      } else {
         setError('Sign-in failed. Please try again.')
         setStep('error')
-      } else {
-        onClose()
       }
+    },
+    onNonOAuthError: () => {
+      // Popup was closed/blocked by the browser — close cleanly
+      onClose()
     },
     flow: 'implicit',
   })
@@ -189,8 +193,16 @@ const GoogleAuthFlow = ({ onClose, onSuccess }) => {
 
   if (step === 'loading') {
     return (
-      <div className="gaf-overlay gaf-overlay--visible">
-        <div className="gaf-popup gaf-popup--visible">
+      <div className="gaf-overlay gaf-overlay--visible" onClick={onClose}>
+        <div className="gaf-popup gaf-popup--visible" onClick={e => e.stopPropagation()}>
+          <div className="gaf-header">
+            <GoogleG size={24} />
+            <button className="gaf-header__close" onClick={onClose} aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
           <div className="gaf-body gaf-body--signing">
             <div className="gaf-signing-dots">
               <span /><span /><span />
@@ -217,7 +229,8 @@ const GoogleAuthFlow = ({ onClose, onSuccess }) => {
           <div className="gaf-body" style={{ textAlign: 'center', padding: '24px' }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>⚠️</div>
             <p style={{ color: '#d93025', fontWeight: 600, marginBottom: 8 }}>{error}</p>
-            <div className="gaf-actions" style={{ justifyContent: 'center', marginTop: 16 }}>
+            <div className="gaf-actions" style={{ justifyContent: 'center', gap: 12, marginTop: 16 }}>
+              <button className="gaf-btn gaf-btn--text" onClick={onClose}>Cancel</button>
               <button className="gaf-btn gaf-btn--primary" onClick={() => { setError(null); setStep('idle'); setTimeout(() => login(), 100) }}>
                 Try Again
               </button>
@@ -228,10 +241,18 @@ const GoogleAuthFlow = ({ onClose, onSuccess }) => {
     )
   }
 
-  /* idle — show a brief loading state while popup opens */
+  /* idle — show briefly while Google popup opens, with close button */
   return (
-    <div className="gaf-overlay gaf-overlay--visible">
-      <div className="gaf-popup gaf-popup--visible">
+    <div className="gaf-overlay gaf-overlay--visible" onClick={onClose}>
+      <div className="gaf-popup gaf-popup--visible" onClick={e => e.stopPropagation()}>
+        <div className="gaf-header">
+          <GoogleG size={24} />
+          <button className="gaf-header__close" onClick={onClose} aria-label="Close">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
         <div className="gaf-body gaf-body--signing">
           <GoogleG size={40} />
           <p className="gaf-signing-msg" style={{ marginTop: 16 }}>
@@ -240,6 +261,13 @@ const GoogleAuthFlow = ({ onClose, onSuccess }) => {
           <p style={{ fontSize: 13, color: '#9aa0a6', marginTop: 4 }}>
             A popup window will appear
           </p>
+          <button
+            className="gaf-btn gaf-btn--text"
+            onClick={onClose}
+            style={{ marginTop: 8 }}
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
