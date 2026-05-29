@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useToast } from '../components/Toast'
 import GoogleAuthFlow from '../components/GoogleAuthFlow'
@@ -186,6 +186,7 @@ const RegisterPage = () => {
     confirmPassword: '', state: '', agreedToTerms: false,
   })
   const toast = useToast()
+  const navigate = useNavigate()
   const [showPassword, setShowPassword]         = useState(false)
   const [showConfirm, setShowConfirm]           = useState(false)
   const [loading, setLoading]                   = useState(false)
@@ -234,7 +235,8 @@ const RegisterPage = () => {
     toast.show({ type: 'info', title: 'Creating account...', message: 'Setting up your NammaSeva profile.' })
     await new Promise(r => setTimeout(r, 1800))
     setLoading(false)
-    toast.show({ type: 'success', title: 'Account Created! 🎉', message: 'Welcome to NammaSeva. Start finding your schemes now.' })
+    toast.show({ type: 'success', title: 'Account Created! 🎉', message: 'Let’s complete your profile to find the best schemes!' })
+    setTimeout(() => navigate('/profile-setup'), 1200)
   }
 
   const fieldProps = (name) => ({
