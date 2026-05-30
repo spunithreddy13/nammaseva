@@ -1,69 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUser, getProfile, getProfileCompletion, calculateMatch, getOverallMatchScore, clearUser } from '../utils/userStore'
+import { SCHEMES } from '../data/schemes'
 import './DashboardPage.css'
-
-/* ═══════════════════════════════════════════
-   SCHEME DATA (with real criteria keys)
-═══════════════════════════════════════════ */
-const SCHEMES = [
-  {
-    id: 1, name: 'PM-KISAN Samman Nidhi', gov: 'Central', govLogo: '🇮🇳',
-    category: 'Agriculture', categoryColor: '#D97706',
-    benefit: '₹6,000/year', benefitType: 'Direct Cash',
-    description: 'Income support of ₹6000 per year to all land holding farmer families across India.',
-    deadline: '2025-06-30', deadlineDays: 32, tags: ['Farmers', 'Direct Benefit'], saved: false, featured: false,
-  },
-  {
-    id: 2, name: 'Karnataka Raita Siri', gov: 'State', govLogo: '🏛️',
-    category: 'Agriculture', categoryColor: '#D97706',
-    benefit: '₹10,000/year', benefitType: 'Direct Cash',
-    description: 'Financial assistance to farmers in Karnataka for agricultural inputs and equipment.',
-    deadline: '2025-07-15', deadlineDays: 47, tags: ['Karnataka', 'Farmers'], saved: false, featured: false,
-  },
-  {
-    id: 3, name: 'National Scholarship Portal', gov: 'Central', govLogo: '🇮🇳',
-    category: 'Education', categoryColor: '#4F46E5',
-    benefit: '₹15,000/year', benefitType: 'Scholarship',
-    description: 'Merit-cum-means scholarships for OBC/SC/ST students pursuing higher education.',
-    deadline: '2025-08-31', deadlineDays: 94, tags: ['OBC', 'Students'], saved: false, featured: false,
-  },
-  {
-    id: 4, name: 'Ayushman Bharat PMJAY', gov: 'Central', govLogo: '🇮🇳',
-    category: 'Healthcare', categoryColor: '#059669',
-    benefit: '₹5 Lakh/year', benefitType: 'Health Cover',
-    description: 'World\'s largest health insurance scheme providing ₹5 lakh cover per family per year.',
-    deadline: null, deadlineDays: null, tags: ['Health Insurance', 'Cashless'], saved: false, featured: false,
-  },
-  {
-    id: 5, name: 'Karnataka Gruha Lakshmi', gov: 'State', govLogo: '🏛️',
-    category: 'Women Empowerment', categoryColor: '#DB2777',
-    benefit: '₹2,000/month', benefitType: 'Monthly Cash',
-    description: 'Monthly financial assistance of ₹2000 to the head woman of every household in Karnataka.',
-    deadline: null, deadlineDays: null, tags: ['Women', 'Karnataka'], saved: false, featured: false,
-  },
-  {
-    id: 6, name: 'MUDRA Loan – Shishu', gov: 'Central', govLogo: '🇮🇳',
-    category: 'Business', categoryColor: '#7C3AED',
-    benefit: 'Up to ₹50,000', benefitType: 'Collateral-free Loan',
-    description: 'Micro loans for small businesses and entrepreneurs to start or expand their venture.',
-    deadline: null, deadlineDays: null, tags: ['Entrepreneurs', 'Self-Employed'], saved: false, featured: false,
-  },
-  {
-    id: 7, name: 'PM Awas Yojana (Rural)', gov: 'Central', govLogo: '🇮🇳',
-    category: 'Housing', categoryColor: '#DC2626',
-    benefit: '₹1.2–1.3 Lakh', benefitType: 'Housing Grant',
-    description: 'Housing assistance to build a pucca house with basic amenities for rural households.',
-    deadline: '2025-06-15', deadlineDays: 17, tags: ['Rural Housing', 'BPL'], saved: false, featured: false,
-  },
-  {
-    id: 8, name: 'Karnataka Anna Bhagya', gov: 'State', govLogo: '🏛️',
-    category: 'Food Security', categoryColor: '#EA580C',
-    benefit: '10 kg rice/month', benefitType: 'Food Subsidy',
-    description: 'Free rice scheme for BPL families in Karnataka — 10 kg rice per member per month.',
-    deadline: null, deadlineDays: null, tags: ['Karnataka', 'BPL', 'Food'], saved: false, featured: false,
-  },
-]
 
 const CATEGORIES = ['All', 'Agriculture', 'Healthcare', 'Education', 'Housing', 'Business', 'Women Empowerment', 'Food Security']
 const GOVTYPES = ['All', 'Central', 'State']
@@ -105,7 +44,7 @@ const MatchRing = ({ score, size = 88 }) => {
 /* ═══════════════════════════════════════════
    SCHEME CARD
 ═══════════════════════════════════════════ */
-const SchemeCard = ({ scheme, matchScore, onSave, hasProfile }) => {
+const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
   const urgency = scheme.deadlineDays
     ? scheme.deadlineDays <= 20 ? 'urgent' : scheme.deadlineDays <= 50 ? 'soon' : ''
     : ''
@@ -160,7 +99,7 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile }) => {
       </div>
 
       <div className="db-scheme-card__actions">
-        <button className="db-scheme-card__view">
+        <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
           View Details
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
@@ -524,6 +463,7 @@ const DashboardPage = () => {
                     matchScore={scheme.matchScore}
                     hasProfile={!!profile}
                     onSave={handleSave}
+                    onView={(s) => navigate(`/scheme/${s.id}`)}
                   />
                 ))}
               </div>
