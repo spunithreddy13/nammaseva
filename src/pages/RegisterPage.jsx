@@ -262,8 +262,9 @@ const RegisterPage = () => {
             toast.show({
               type: 'success',
               title: `Account created! 🎉`,
-              message: `Registered as ${account.email}. Welcome to NammaSeva!`,
+              message: `Registered as ${account.email}. Let's set up your profile!`,
             })
+            setTimeout(() => navigate('/profile-setup'), 1200)
           }}
         />
       )}

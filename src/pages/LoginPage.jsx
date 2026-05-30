@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useToast } from '../components/Toast'
 import GoogleAuthFlow from '../components/GoogleAuthFlow'
@@ -90,6 +90,7 @@ const AadhaarLoginModal = ({ onClose }) => {
 ════════════════════════════════════════════ */
 const LoginPage = () => {
   const toast = useToast()
+  const navigate = useNavigate()
   const [form, setForm] = useState({ identifier: '', password: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -122,9 +123,10 @@ const LoginPage = () => {
     }
     setLoading(true)
     toast.show({ type: 'info', title: 'Signing in...', message: 'Verifying your credentials.' })
-    await new Promise(r => setTimeout(r, 1800))
+    await new Promise(r => setTimeout(r, 1500))
     setLoading(false)
-    toast.show({ type: 'success', title: 'Welcome back! 🎉', message: 'Login successful. Redirecting to your dashboard.' })
+    toast.show({ type: 'success', title: 'Welcome back! 🎉', message: 'Login successful. Taking you to your dashboard.' })
+    setTimeout(() => navigate('/dashboard'), 1000)
   }
 
   const handleGoogle = () => {
@@ -134,9 +136,11 @@ const LoginPage = () => {
   const handleGoogleSuccess = (account) => {
     toast.show({
       type: 'success',
-      title: `Welcome, ${account.name.split(' ')[0]}! 🎉`,
-      message: `Signed in as ${account.email}. Redirecting to your dashboard…`,
+      title: `Welcome, ${account.name?.split(' ')[0] || account.given_name}! 🎉`,
+      message: `Signed in as ${account.email}. Taking you to your dashboard…`,
     })
+    setShowGoogleModal(false)
+    setTimeout(() => navigate('/dashboard'), 1200)
   }
 
   const handleAadhaar = () => {
