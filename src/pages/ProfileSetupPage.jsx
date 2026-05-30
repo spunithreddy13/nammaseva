@@ -1,6 +1,7 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/Toast'
+import { setProfile, getUser } from '../utils/userStore'
 import './ProfileSetupPage.css'
 
 /* ── Constants ── */
@@ -88,25 +89,28 @@ const ProfileSetupPage = () => {
   const [photoPreview, setPhotoPreview] = useState(null)
   const [dragOver, setDragOver] = useState(false)
 
-  const [form, setForm] = useState({
-    // Step 1
-    fullName: '',
-    dob: '',
-    gender: '',
-    maritalStatus: '',
-    photo: null,
-    // Step 2
-    state: '',
-    district: '',
-    pincode: '',
-    language: '',
-    // Step 3
-    caste: '',
-    familySize: 3,
-    income: '',
-    occupation: '',
-    // Step 4
-    interests: [],
+  const [form, setForm] = useState(() => {
+    const savedUser = getUser()
+    return {
+      // Step 1 — pre-fill name from login/register
+      fullName: savedUser?.name || '',
+      dob: '',
+      gender: '',
+      maritalStatus: '',
+      photo: null,
+      // Step 2
+      state: '',
+      district: '',
+      pincode: '',
+      language: '',
+      // Step 3
+      caste: '',
+      familySize: 3,
+      income: '',
+      occupation: '',
+      // Step 4
+      interests: [],
+    }
   })
 
   const set = (key, value) => {
@@ -201,6 +205,22 @@ const ProfileSetupPage = () => {
     setSaving(true)
     toast.show({ type: 'info', title: 'Saving your profile…', message: 'Almost there!' })
     await new Promise(r => setTimeout(r, 1800))
+    // Save real profile data to localStorage
+    setProfile({
+      fullName:      form.fullName.trim(),
+      dob:           form.dob,
+      gender:        form.gender,
+      maritalStatus: form.maritalStatus,
+      state:         form.state,
+      district:      form.district,
+      pincode:       form.pincode,
+      language:      form.language,
+      caste:         form.caste,
+      familySize:    form.familySize,
+      income:        form.income,
+      occupation:    form.occupation,
+      interests:     form.interests,
+    })
     setSaving(false)
     toast.show({ type: 'success', title: 'Profile Complete! 🎉', message: 'Finding schemes that match your profile…' })
     setTimeout(() => navigate('/dashboard'), 1500)

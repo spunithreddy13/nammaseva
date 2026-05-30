@@ -1,6 +1,59 @@
 /* ============================================
    NAMMASEVA DASHBOARD
 ============================================ */
+
+/* ── Setup Banner (when no profile) ── */
+.db-setup-banner {
+  background: linear-gradient(135deg, #eef2ff, #f0fdf4);
+  border: 1.5px solid #c7d2fe;
+  border-radius: 16px;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.db-setup-banner:hover { box-shadow: 0 4px 16px rgba(79,70,229,0.12); }
+.db-setup-banner__icon { font-size: 28px; flex-shrink: 0; }
+.db-setup-banner__text { flex: 1; font-size: 14px; color: #374151; line-height: 1.5; }
+.db-setup-banner__text strong { color: #4338ca; }
+.db-setup-banner__btn {
+  padding: 10px 20px;
+  background: #4338ca;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.db-setup-banner__btn:hover { background: #3730a3; }
+
+/* ── Empty match card ── */
+.db-match-score-card--empty {
+  cursor: pointer;
+  border: 2px dashed rgba(255,255,255,0.3) !important;
+  transition: all 0.2s;
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
+}
+.db-match-score-card--empty:hover { background: rgba(255,255,255,0.2) !important; }
+.db-match-score-card__empty-icon { font-size: 36px; }
+.db-match-score-card__cta { font-size: 12px; color: #FF9B4E; font-weight: 600; margin-top: 4px; }
+
+/* ── No match badge ── */
+.db-scheme-card__match-na {
+  font-size: 20px;
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; }

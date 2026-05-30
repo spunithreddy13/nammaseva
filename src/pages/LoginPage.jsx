@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useToast } from '../components/Toast'
 import GoogleAuthFlow from '../components/GoogleAuthFlow'
+import { setUser } from '../utils/userStore'
 import './AuthPages.css'
 
 /* ── Icons outside component to prevent remount ── */
@@ -125,6 +126,14 @@ const LoginPage = () => {
     toast.show({ type: 'info', title: 'Signing in...', message: 'Verifying your credentials.' })
     await new Promise(r => setTimeout(r, 1500))
     setLoading(false)
+    // Save the identifier as the display name (email/phone)
+    const isEmail = form.identifier.includes('@')
+    setUser({
+      name: isEmail ? form.identifier.split('@')[0] : form.identifier,
+      email: isEmail ? form.identifier : '',
+      phone: !isEmail ? form.identifier : '',
+      loginMethod: 'email',
+    })
     toast.show({ type: 'success', title: 'Welcome back! 🎉', message: 'Login successful. Taking you to your dashboard.' })
     setTimeout(() => navigate('/dashboard'), 1000)
   }
@@ -134,9 +143,15 @@ const LoginPage = () => {
   }
 
   const handleGoogleSuccess = (account) => {
+    setUser({
+      name: account.name || account.given_name || 'User',
+      email: account.email || '',
+      picture: account.picture || null,
+      loginMethod: 'google',
+    })
     toast.show({
       type: 'success',
-      title: `Welcome, ${account.name?.split(' ')[0] || account.given_name}! 🎉`,
+      title: `Welcome, ${account.given_name || account.name?.split(' ')[0]}! 🎉`,
       message: `Signed in as ${account.email}. Taking you to your dashboard…`,
     })
     setShowGoogleModal(false)
