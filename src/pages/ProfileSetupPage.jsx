@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '../components/Toast'
-import { setProfile, getUser } from '../utils/userStore'
+import { setProfile, getUser, getProfile } from '../utils/userStore'
 import './ProfileSetupPage.css'
 
 /* ── Constants ── */
@@ -89,26 +89,36 @@ const ProfileSetupPage = () => {
   const [photoPreview, setPhotoPreview] = useState(null)
   const [dragOver, setDragOver] = useState(false)
 
+  const savedUser    = getUser()
+  const savedProfile = getProfile()          // existing saved profile (if editing)
+  const isEditing    = !!savedProfile        // true when coming back to update
+
   const [form, setForm] = useState(() => {
-    const savedUser = getUser()
+    if (savedProfile) {
+      // ── Pre-fill ALL fields from saved profile ──
+      return {
+        fullName:      savedProfile.fullName      || savedUser?.name || '',
+        dob:           savedProfile.dob           || '',
+        gender:        savedProfile.gender        || '',
+        maritalStatus: savedProfile.maritalStatus || '',
+        photo:         null,                         // can't restore File object
+        state:         savedProfile.state         || '',
+        district:      savedProfile.district      || '',
+        pincode:       savedProfile.pincode        || '',
+        language:      savedProfile.language      || '',
+        caste:         savedProfile.caste         || '',
+        familySize:    savedProfile.familySize    ?? 3,
+        income:        savedProfile.income        || '',
+        occupation:    savedProfile.occupation    || '',
+        interests:     savedProfile.interests     || [],
+      }
+    }
+    // ── New user: only pre-fill name from login ──
     return {
-      // Step 1 — pre-fill name from login/register
       fullName: savedUser?.name || '',
-      dob: '',
-      gender: '',
-      maritalStatus: '',
-      photo: null,
-      // Step 2
-      state: '',
-      district: '',
-      pincode: '',
-      language: '',
-      // Step 3
-      caste: '',
-      familySize: 3,
-      income: '',
-      occupation: '',
-      // Step 4
+      dob: '', gender: '', maritalStatus: '', photo: null,
+      state: '', district: '', pincode: '', language: '',
+      caste: '', familySize: 3, income: '', occupation: '',
       interests: [],
     }
   })
@@ -222,7 +232,13 @@ const ProfileSetupPage = () => {
       interests:     form.interests,
     })
     setSaving(false)
-    toast.show({ type: 'success', title: 'Profile Complete! 🎉', message: 'Finding schemes that match your profile…' })
+    toast.show({
+      type: 'success',
+      title: isEditing ? 'Profile Updated! ✅' : 'Profile Complete! 🎉',
+      message: isEditing
+        ? 'Your details have been saved. Recalculating your scheme matches…'
+        : 'Finding schemes that match your profile…',
+    })
     setTimeout(() => navigate('/dashboard'), 1500)
   }
 
@@ -255,9 +271,26 @@ const ProfileSetupPage = () => {
                 </defs>
               </svg>
             </div>
-            <span className="ps-logo-text">NammaSeva</span>
+            <div className="ps-logo-text">NammaSeva</div>
           </div>
-          <div className="ps-header__tag">Profile Setup</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {isEditing && (
+              <button
+                onClick={() => navigate('/dashboard')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '7px 14px', border: '1.5px solid #e2e8f0',
+                  borderRadius: 8, background: 'white', cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600, color: '#64748b',
+                  fontFamily: 'Poppins, sans-serif',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Dashboard
+              </button>
+            )}
+            <div className="ps-header__tag">{isEditing ? '✏️ Edit Profile' : 'Profile Setup'}</div>
+          </div>
         </div>
 
         {/* ── Progress Bar ── */}
