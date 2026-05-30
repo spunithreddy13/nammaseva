@@ -203,7 +203,7 @@ const ProfileSetupPage = () => {
     await new Promise(r => setTimeout(r, 1800))
     setSaving(false)
     toast.show({ type: 'success', title: 'Profile Complete! 🎉', message: 'Finding schemes that match your profile…' })
-    setTimeout(() => navigate('/'), 1500)
+    setTimeout(() => navigate('/dashboard'), 1500)
   }
 
   const progress = ((step - 1) / (STEPS.length - 1)) * 100
