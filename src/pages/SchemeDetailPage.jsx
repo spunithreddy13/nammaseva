@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getSchemeById, getSimilarSchemes, checkCriterion, SCHEMES } from '../data/schemes'
 import { getProfile, calculateMatch } from '../utils/userStore'
+import ApplyHelperBot from '../components/ApplyHelperBot'
 import './SchemeDetailPage.css'
 
 /* ── Small helper components ── */
@@ -86,6 +87,7 @@ const SchemeDetailPage = () => {
   const [checkedDocs, setCheckedDocs] = useState({})
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+  const [showHelperBot, setShowHelperBot] = useState(false)
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }, [id])
 
@@ -384,6 +386,9 @@ const SchemeDetailPage = () => {
                   </svg>
                   Apply on Official Website
                 </a>
+                <button className="sdp-apply-btn" style={{ background: '#eef2ff', color: '#4338ca', marginLeft: '12px' }} onClick={() => setShowHelperBot(true)}>
+                  🤖 Need Help? Ask SevAI
+                </button>
                 <p className="sdp-apply-note">
                   You will be redirected to the official government portal. NammaSeva does not process applications directly.
                 </p>
@@ -433,6 +438,10 @@ const SchemeDetailPage = () => {
             Apply on Official Site
           </a>
 
+          <button className="sdp-apply-btn-sidebar" style={{ marginTop: '8px', background: '#eef2ff', color: '#4338ca' }} onClick={() => setShowHelperBot(true)}>
+            🤖 Need Help Applying?
+          </button>
+
           <div className="sdp-sidebar-actions">
             <button className={`sdp-sidebar-btn ${saved ? 'sdp-sidebar-btn--active' : ''}`} onClick={() => setSaved(s => !s)}>
               {saved ? '🔖 Saved' : '🏷️ Save Scheme'}
@@ -474,6 +483,8 @@ const SchemeDetailPage = () => {
           </div>
         </div>
       )}
+      
+      {showHelperBot && <ApplyHelperBot scheme={scheme} onClose={() => setShowHelperBot(false)} />}
     </div>
   )
 }

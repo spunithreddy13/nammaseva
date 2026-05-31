@@ -1,0 +1,323 @@
+/* ════════════════════════════════════════════
+   SevAI Chatbot CSS
+════════════════════════════════════════════ */
+
+/* Floating Action Button */
+.sevai-fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0B2D6B, #1a4a9f);
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(11,45,107,0.3);
+  cursor: pointer;
+  z-index: 1000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sevai-fab:hover {
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 12px 32px rgba(11,45,107,0.4);
+}
+
+.sevai-fab__icon {
+  font-size: 28px;
+}
+
+.sevai-fab--hidden {
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Chat Window */
+.sevai-window {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 380px;
+  height: 600px;
+  max-height: calc(100vh - 48px);
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(11,45,107,0.05);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  transform: translateY(20px) scale(0.95);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom right;
+}
+
+.sevai-window--open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Header */
+.sevai-header {
+  background: linear-gradient(135deg, #0B2D6B, #1a4a9f);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+}
+
+.sevai-header__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sevai-header__icon {
+  font-size: 24px;
+  background: rgba(255,255,255,0.2);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.sevai-header__title {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.sevai-header__sub {
+  font-size: 11px;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.sevai-header__close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.sevai-header__close:hover { opacity: 1; }
+
+/* Body */
+.sevai-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #f8fafc;
+}
+
+.sevai-msg-wrap {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  max-width: 85%;
+}
+
+.sevai-msg-wrap--bot {
+  align-self: flex-start;
+}
+
+.sevai-msg-wrap--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.sevai-msg-avatar {
+  width: 28px;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+
+.sevai-msg-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sevai-msg {
+  padding: 12px 16px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.sevai-msg--bot {
+  background: white;
+  color: #0f172a;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.sevai-msg--user {
+  background: #FF6B00;
+  color: white;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(255,107,0,0.2);
+}
+
+/* Schemes inside chat */
+.sevai-schemes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sevai-scheme-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.sevai-scheme-card:hover {
+  border-color: #0B2D6B;
+  box-shadow: 0 4px 12px rgba(11,45,107,0.1);
+}
+
+.sevai-scheme-card__title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0B2D6B;
+  margin-bottom: 4px;
+}
+
+.sevai-scheme-card__ben {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.sevai-scheme-card__cta {
+  font-size: 11px;
+  font-weight: 600;
+  color: #FF6B00;
+}
+
+/* Quick Replies */
+.sevai-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sevai-qr-btn {
+  background: white;
+  border: 1.5px solid #c7d2fe;
+  color: #4338ca;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 12.5px;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sevai-qr-btn:hover {
+  background: #eef2ff;
+  border-color: #4338ca;
+}
+
+/* Footer (Input) */
+.sevai-footer {
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.sevai-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: #f1f5f9;
+  border: 1px solid transparent;
+  border-radius: 100px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.sevai-input:focus {
+  background: white;
+  border-color: #0B2D6B;
+  box-shadow: 0 0 0 3px rgba(11,45,107,0.1);
+}
+
+.sevai-send {
+  background: #0B2D6B;
+  color: white;
+  border: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.sevai-send:hover { background: #1a4a9f; }
+
+/* Typing animation */
+.sevai-msg--typing {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 18px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #cbd5e1;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}

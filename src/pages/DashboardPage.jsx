@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUser, getProfile, getProfileCompletion, calculateMatch, getOverallMatchScore, clearUser } from '../utils/userStore'
-import { SCHEMES } from '../data/schemes'
+import { SCHEMES, countByType } from '../data/schemes'
 import './DashboardPage.css'
 
 const CATEGORIES = ['All', 'Agriculture', 'Healthcare', 'Education', 'Housing', 'Business', 'Women Empowerment', 'Food Security']
-const GOVTYPES = ['All', 'Central', 'State']
+const GOVTYPES = ['All', 'Central', 'State', 'Private & NGO']
 
 const NAV_ITEMS = [
   { icon: '🏠', label: 'Dashboard', path: '/dashboard', active: true },
@@ -58,8 +58,17 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
 
       <div className="db-scheme-card__top">
         <div className="db-scheme-card__gov">
-          <span className="db-scheme-card__gov-logo">{scheme.govLogo}</span>
-          <span className="db-scheme-card__gov-type">{scheme.gov} Govt.</span>
+          {scheme.type === 'private' || scheme.type === 'ngo' ? (
+            <>
+              <span className="db-scheme-card__gov-logo">{scheme.govLogo}</span>
+              <span className="db-scheme-card__gov-type" style={{ maxWidth: '140px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{scheme.orgName}</span>
+            </>
+          ) : (
+            <>
+              <span className="db-scheme-card__gov-logo">{scheme.govLogo}</span>
+              <span className="db-scheme-card__gov-type">{scheme.gov} Govt.</span>
+            </>
+          )}
         </div>
         {hasProfile && matchScore !== null ? (
           <div className="db-scheme-card__match" style={{ color: matchColor }}>
@@ -74,9 +83,16 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
       </div>
 
       <div className="db-scheme-card__body">
-        <span className="db-scheme-card__cat" style={{ background: `${scheme.categoryColor}18`, color: scheme.categoryColor }}>
-          {scheme.category}
-        </span>
+        <div className="db-scheme-card__cat-row">
+          <span className="db-scheme-card__cat" style={{ background: `${scheme.categoryColor}18`, color: scheme.categoryColor }}>
+            {scheme.categoryIcon} {scheme.category}
+          </span>
+          {(scheme.type === 'private' || scheme.type === 'ngo') && (
+            <span className="db-scheme-card__type-tag" style={{ background: scheme.type === 'private' ? '#f3e8ff' : '#e0e7ff', color: scheme.type === 'private' ? '#7e22ce' : '#4338ca' }}>
+              {scheme.type === 'private' ? 'Private' : 'NGO'}
+            </span>
+          )}
+        </div>
         <h3 className="db-scheme-card__name">{scheme.name}</h3>
         <p className="db-scheme-card__desc">{scheme.description}</p>
       </div>
@@ -99,17 +115,30 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
       </div>
 
       <div className="db-scheme-card__actions">
-        <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
-          View Details
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-        <button
-          className={`db-scheme-card__save ${scheme.saved ? 'db-scheme-card__save--saved' : ''}`}
-          onClick={() => onSave(scheme.id)}
-          title={scheme.saved ? 'Unsave' : 'Save'}
-        >
-          {scheme.saved ? '🔖' : '🏷️'}
-        </button>
+        {scheme.type === 'private' || scheme.type === 'ngo' ? (
+          <>
+            <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
+              Check Eligibility
+            </button>
+            <a href={scheme.officialUrl} target="_blank" rel="noopener noreferrer" className="db-scheme-card__visit">
+              Visit Website
+            </a>
+          </>
+        ) : (
+          <>
+            <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
+              View Details
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <button
+              className={`db-scheme-card__save ${scheme.saved ? 'db-scheme-card__save--saved' : ''}`}
+              onClick={() => onSave(scheme.id)}
+              title={scheme.saved ? 'Unsave' : 'Save'}
+            >
+              {scheme.saved ? '🔖' : '🏷️'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
@@ -127,6 +156,7 @@ const DashboardPage = () => {
   const profile = getProfile()
   const completion = getProfileCompletion()
   const overallMatch = profile ? getOverallMatchScore(profile) : null
+  const counts = countByType()
 
   // If not logged in at all, redirect to login
   useEffect(() => {
@@ -164,7 +194,9 @@ const DashboardPage = () => {
   // Filter
   const filtered = schemesWithMatch.filter(s => {
     const catOk = activeFilter === 'All' || s.category === activeFilter
-    const govOk = activeGov === 'All' || s.gov === activeGov
+    const govOk = activeGov === 'All' || 
+                  (activeGov === 'Private & NGO' && (s.type === 'private' || s.type === 'ngo')) || 
+                  s.gov === activeGov
     const searchOk = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.category.toLowerCase().includes(searchQuery.toLowerCase())
     return catOk && govOk && searchOk
   })
@@ -299,16 +331,16 @@ const DashboardPage = () => {
 
             <div className="db-stats">
               <div className="db-stat">
-                <div className="db-stat__num" style={{ color: '#0B2D6B' }}>{profile ? sorted.filter(s => s.matchScore >= 50).length : '—'}</div>
-                <div className="db-stat__label">Eligible</div>
+                <div className="db-stat__num" style={{ color: '#0B2D6B' }}>{counts.govt}</div>
+                <div className="db-stat__label">Govt Schemes</div>
               </div>
               <div className="db-stat">
-                <div className="db-stat__num" style={{ color: '#FF6B00' }}>{savedCount}</div>
-                <div className="db-stat__label">Saved</div>
+                <div className="db-stat__num" style={{ color: '#7e22ce' }}>{counts.private}</div>
+                <div className="db-stat__label">Private</div>
               </div>
               <div className="db-stat">
-                <div className="db-stat__num" style={{ color: '#22c55e' }}>0</div>
-                <div className="db-stat__label">Applied</div>
+                <div className="db-stat__num" style={{ color: '#4338ca' }}>{counts.ngo}</div>
+                <div className="db-stat__label">NGOs</div>
               </div>
             </div>
 
@@ -415,7 +447,7 @@ const DashboardPage = () => {
                 <div className="db-filter-pills">
                   {GOVTYPES.map(g => (
                     <button key={g} className={`db-filter-pill ${activeGov === g ? 'db-filter-pill--active' : ''}`} onClick={() => setActiveGov(g)}>
-                      {g === 'Central' ? '🇮🇳 ' : g === 'State' ? '🏛️ ' : ''}{g}
+                      {g === 'Central' ? '🇮🇳 ' : g === 'State' ? '🏛️ ' : g === 'Private & NGO' ? '🏢 ' : ''}{g}
                     </button>
                   ))}
                 </div>

@@ -1,0 +1,228 @@
+/* ════════════════════════════════════════════
+   Apply Helper Bot CSS
+════════════════════════════════════════════ */
+
+.helper-bot-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+  backdrop-filter: blur(2px);
+  animation: helperFadeIn 0.3s ease;
+}
+
+@keyframes helperFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.helper-bot-panel {
+  width: 400px;
+  max-width: 100%;
+  height: 100%;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 32px rgba(11,45,107,0.15);
+  animation: helperSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes helperSlideIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.helper-bot-header {
+  background: #f8fafc;
+  padding: 20px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.helper-bot-header__info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.helper-bot-header__icon {
+  width: 48px;
+  height: 48px;
+  background: #e0e7ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.helper-bot-header__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0B2D6B;
+}
+
+.helper-bot-header__sub {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.helper-bot-close {
+  background: white;
+  border: 1px solid #e2e8f0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.helper-bot-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.helper-bot-body {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: white;
+}
+
+.helper-msg-wrap {
+  display: flex;
+  gap: 12px;
+}
+
+.helper-msg-wrap--user {
+  flex-direction: row-reverse;
+}
+
+.helper-avatar {
+  width: 32px;
+  height: 32px;
+  background: #f1f5f9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.helper-msg-wrap--user .helper-avatar {
+  background: #FF6B00;
+  color: white;
+  font-size: 14px;
+}
+
+.helper-msg-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 80%;
+}
+
+.helper-msg {
+  padding: 14px 18px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: #0f172a;
+}
+
+.helper-msg--bot {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-top-left-radius: 4px;
+}
+
+.helper-msg--user {
+  background: #FF6B00;
+  color: white;
+  border-top-right-radius: 4px;
+}
+
+.helper-quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.helper-qr-btn {
+  background: white;
+  border: 1.5px solid #0B2D6B;
+  color: #0B2D6B;
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.helper-qr-btn:hover {
+  background: #0B2D6B;
+  color: white;
+}
+
+.helper-bot-footer {
+  padding: 16px 24px 24px;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+}
+
+.helper-input-wrap {
+  display: flex;
+  gap: 12px;
+}
+
+.helper-input {
+  flex: 1;
+  padding: 14px 20px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.helper-input:focus {
+  border-color: #0B2D6B;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(11,45,107,0.1);
+}
+
+.helper-send {
+  width: 48px;
+  height: 48px;
+  background: #0B2D6B;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.helper-send:hover {
+  background: #1a4a9f;
+}

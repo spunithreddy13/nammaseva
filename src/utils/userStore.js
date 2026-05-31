@@ -104,6 +104,18 @@ const SCHEME_CRITERIA = {
     incomeMax: '₹2.5 – 5 Lakhs per year',
     interests: [],
   },
+  // ── Private Schemes ──
+  101: { occupations: ['farmer'], states: null, castes: null, interests: ['agriculture'] }, // SBI KCC
+  102: { occupations: ['business', 'other', 'daily'], states: null, castes: null, interests: ['business'] }, // HDFC MSME
+  103: { occupations: null, states: null, castes: null, interests: ['healthcare'] }, // Star Health
+  104: { occupations: ['business', 'other'], states: null, castes: null, interests: ['business'] }, // Startup Seed Fund
+  // ── NGO Schemes ──
+  105: { occupations: ['student'], states: null, castes: null, interests: ['education'] }, // Tata Trusts
+  106: { occupations: ['student'], states: ['Karnataka', 'Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Kerala'], castes: null, interests: ['education'] }, // Infosys Foundation
+  107: { occupations: ['farmer', 'business', 'daily', 'other', 'unemployed'], states: null, genders: ['female'], interests: ['business'] }, // Rang De
+  108: { occupations: ['student'], states: null, incomeMax: '₹2.5 – 5 Lakhs per year', interests: ['education'] }, // Pratham
+  109: { occupations: null, states: ['Karnataka', 'Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Kerala'], genders: ['female'], interests: ['women'] }, // Grameen MF
+  110: { occupations: ['student'], states: ['Karnataka', 'Tamil Nadu', 'Telangana'], castes: null, interests: ['education'] }, // Wipro Cares
 }
 
 const INCOME_ORDER = [

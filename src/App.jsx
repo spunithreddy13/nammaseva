@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage'
 import ProfileSetupPage from './pages/ProfileSetupPage'
 import DashboardPage from './pages/DashboardPage'
 import SchemeDetailPage from './pages/SchemeDetailPage'
+import Chatbot from './components/Chatbot'
 import './App.css'
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/scheme/:id" element={<SchemeDetailPage />} />
           </Routes>
+          <Chatbot />
         </div>
       </ToastProvider>
     </BrowserRouter>
