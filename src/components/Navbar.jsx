@@ -1,22 +1,42 @@
-import { useState, useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { getUser, clearUser, getNotifications } from '../utils/userStore'
 import './Navbar.css'
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const location = useLocation()
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
+  const navigate = useNavigate()
+  const isSolidNavbar = ['/login', '/register', '/dashboard', '/notifications', '/profile-setup'].includes(location.pathname) || location.pathname.startsWith('/scheme')
+  const user = getUser()
+  const userEmail = user?.email
+
+  const updateNotifCount = React.useCallback(() => {
+    if (!userEmail) return
+    const notifs = getNotifications()
+    setUnreadCount(notifs.filter(n => !n.read).length)
+  }, [userEmail])
+
+  useEffect(() => {
+    updateNotifCount()
+    window.addEventListener('ns_notifs_updated', updateNotifCount)
+    return () => window.removeEventListener('ns_notifs_updated', updateNotifCount)
+  }, [updateNotifCount])
+
+  const handleLogout = () => {
+    clearUser()
+    window.location.href = '/'
+  }
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll)
-    // On auth pages, always show scrolled style
-    if (isAuthPage) setScrolled(true)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [isAuthPage])
+  }, [])
 
   const navLinks = [
     { label: 'Home', href: '/' },
@@ -26,7 +46,7 @@ const Navbar = () => {
   ]
 
   return (
-    <nav className={`navbar ${scrolled || isAuthPage ? 'navbar--scrolled' : ''}`}>
+    <nav className={`navbar ${scrolled || isSolidNavbar ? 'navbar--scrolled' : ''}`}>
       <div className="navbar__container">
         {/* Logo */}
         <Link to="/" className="navbar__logo" onClick={() => setMenuOpen(false)}>
@@ -58,15 +78,34 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* CTA Buttons */}
+        {/* CTA Buttons / Actions */}
         <div className="navbar__actions">
-          <Link to="/login" className="btn btn--ghost" id="nav-login-btn">Login</Link>
-          <Link to="/register" className="btn btn--saffron" id="nav-register-btn">
-            <span>Register Free</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </Link>
+          {user && (
+            <button className="navbar__bell" onClick={() => navigate('/notifications')} aria-label="Notifications">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              {unreadCount > 0 && <span className="navbar__bell-badge">{unreadCount}</span>}
+            </button>
+          )}
+
+          {!user ? (
+            <>
+              <Link to="/login" className="btn btn--ghost" id="nav-login-btn">Login</Link>
+              <Link to="/register" className="btn btn--saffron" id="nav-register-btn">
+                <span>Register Free</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+              </Link>
+            </>
+          ) : (
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Link to="/dashboard" className="btn btn--saffron" id="nav-dashboard-btn">Dashboard</Link>
+              <button onClick={handleLogout} className="btn btn--ghost" style={{ padding: '8px 16px', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>Logout</button>
+            </div>
+          )}
         </div>
 
         {/* Hamburger */}
@@ -93,8 +132,22 @@ const Navbar = () => {
           </a>
         ))}
         <div className="navbar__mobile-actions">
-          <Link to="/login" className="btn btn--ghost-dark" onClick={() => setMenuOpen(false)}>Login</Link>
-          <Link to="/register" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>Register Free</Link>
+          {user ? (
+            <>
+              <button className="navbar__bell" onClick={() => { setMenuOpen(false); navigate('/notifications') }} style={{ width: '100%', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: 'white', marginBottom: '10px' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  Notifications {unreadCount > 0 && <span style={{ background: '#FF6B00', padding: '2px 8px', borderRadius: '100px', fontSize: '12px' }}>{unreadCount} New</span>}
+                </span>
+              </button>
+              <Link to="/dashboard" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>Dashboard</Link>
+              <button className="btn btn--ghost-dark" onClick={handleLogout}>Logout</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" className="btn btn--ghost-dark" onClick={() => setMenuOpen(false)}>Login</Link>
+              <Link to="/register" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>Register Free</Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

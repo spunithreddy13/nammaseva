@@ -6,6 +6,9 @@ import RegisterPage from './pages/RegisterPage'
 import ProfileSetupPage from './pages/ProfileSetupPage'
 import DashboardPage from './pages/DashboardPage'
 import SchemeDetailPage from './pages/SchemeDetailPage'
+import NotificationsPage from './pages/NotificationsPage'
+import ApplicationsPage from './pages/ApplicationsPage'
+import SavedSchemesPage from './pages/SavedSchemesPage'
 import Chatbot from './components/Chatbot'
 import './App.css'
 
@@ -21,6 +24,9 @@ function App() {
             <Route path="/profile-setup" element={<ProfileSetupPage />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/scheme/:id" element={<SchemeDetailPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/applications" element={<ApplicationsPage />} />
+            <Route path="/saved" element={<SavedSchemesPage />} />
           </Routes>
           <Chatbot />
         </div>

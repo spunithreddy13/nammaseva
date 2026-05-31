@@ -6,6 +6,8 @@
 const KEYS = {
   USER:    'ns_user',
   PROFILE: 'ns_profile',
+  NOTIFS:  'ns_notifications',
+  SAVED:   'ns_saved_schemes',
 }
 
 /* ── Auth (name + email set at login/register) ── */
@@ -46,6 +48,53 @@ export const getProfileCompletion = () => {
 export const clearUser = () => {
   localStorage.removeItem(KEYS.USER)
   localStorage.removeItem(KEYS.PROFILE)
+  localStorage.removeItem(KEYS.NOTIFS)
+}
+
+/* ─────────────────────────────────────────────
+   NOTIFICATIONS
+───────────────────────────────────────────── */
+
+const MOCK_NOTIFICATIONS = [
+  { id: 'n1', type: 'scheme_match', title: 'New Scheme Match!', description: 'Ayushman Bharat PMJAY perfectly matches your profile.', timeAgo: '2 hours ago', read: false, link: '/scheme/4' },
+  { id: 'n2', type: 'deadline', title: 'Deadline Approaching', description: 'Only 3 days left to apply for PM-KISAN Samman Nidhi.', timeAgo: '1 day ago', read: false, link: '/scheme/1' },
+  { id: 'n3', type: 'application_update', title: 'Application Update', description: 'Your application for Karnataka Raita Siri is under review.', timeAgo: '2 days ago', read: true, link: '/dashboard' },
+  { id: 'n4', type: 'ngo_scheme', title: 'New NGO Scheme Added', description: 'Tata Trusts Education Grant is now available in your state.', timeAgo: '3 days ago', read: true, link: '/scheme/105' },
+  { id: 'n5', type: 'profile_incomplete', title: 'Profile Incomplete', description: 'Add your exact annual income to get more accurate scheme matches.', timeAgo: '1 week ago', read: true, link: '/profile-setup' },
+]
+
+export const getNotifications = () => {
+  try {
+    const stored = localStorage.getItem(KEYS.NOTIFS)
+    if (stored) return JSON.parse(stored)
+    // If no notifications exist, set mock data
+    localStorage.setItem(KEYS.NOTIFS, JSON.stringify(MOCK_NOTIFICATIONS))
+    return MOCK_NOTIFICATIONS
+  } catch {
+    return MOCK_NOTIFICATIONS
+  }
+}
+
+export const markAsRead = (id) => {
+  const notifs = getNotifications()
+  const updated = notifs.map(n => n.id === id ? { ...n, read: true } : n)
+  localStorage.setItem(KEYS.NOTIFS, JSON.stringify(updated))
+  // Dispatch an event so Navbar can update its badge
+  window.dispatchEvent(new Event('ns_notifs_updated'))
+}
+
+export const markAllAsRead = () => {
+  const notifs = getNotifications()
+  const updated = notifs.map(n => ({ ...n, read: true }))
+  localStorage.setItem(KEYS.NOTIFS, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_notifs_updated'))
+}
+
+export const removeNotification = (id) => {
+  const notifs = getNotifications()
+  const updated = notifs.filter(n => n.id !== id)
+  localStorage.setItem(KEYS.NOTIFS, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_notifs_updated'))
 }
 
 /* ─────────────────────────────────────────────
@@ -196,4 +245,94 @@ export const getOverallMatchScore = (profile) => {
   const scores = ids.map(id => calculateMatch(id, profile)).filter(s => s !== null && s > 20)
   if (scores.length === 0) return null
   return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+}
+
+/* ─────────────────────────────────────────────
+   SAVED SCHEMES
+───────────────────────────────────────────── */
+
+const MOCK_SAVED_SCHEMES = [
+  {
+    id: 4,
+    name: 'Ayushman Bharat PMJAY',
+    category: 'Health',
+    categoryColor: '#10b981',
+    type: 'Government',
+    matchScore: 92,
+    deadline: '31 March 2025',
+    savedDate: '2024-01-10',
+    description: 'Health coverage up to ₹5 lakh per family per year for secondary and tertiary care.',
+    state: 'Central',
+  },
+  {
+    id: 1,
+    name: 'PM-KISAN Samman Nidhi',
+    category: 'Agriculture',
+    categoryColor: '#f59e0b',
+    type: 'Government',
+    matchScore: 87,
+    deadline: 'Ongoing',
+    savedDate: '2024-01-15',
+    description: '₹6000 per year direct income support to farmer families in three installments.',
+    state: 'Central',
+  },
+  {
+    id: 105,
+    name: 'Tata Trusts Education Grant',
+    category: 'Education',
+    categoryColor: '#3b82f6',
+    type: 'NGO',
+    matchScore: 78,
+    deadline: '15 April 2025',
+    savedDate: '2024-02-01',
+    description: 'Merit-based education grants for underprivileged students across India.',
+    state: 'All India',
+  },
+  {
+    id: 6,
+    name: 'MUDRA Loan Scheme',
+    category: 'Business',
+    categoryColor: '#8b5cf6',
+    type: 'Government',
+    matchScore: 71,
+    deadline: 'Ongoing',
+    savedDate: '2024-02-10',
+    description: 'Loans up to ₹10 lakh for non-corporate small business enterprises.',
+    state: 'Central',
+  },
+]
+
+export const getSavedSchemes = () => {
+  try {
+    const stored = localStorage.getItem(KEYS.SAVED)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (parsed.length >= 4) return parsed
+    }
+    localStorage.setItem(KEYS.SAVED, JSON.stringify(MOCK_SAVED_SCHEMES))
+    return MOCK_SAVED_SCHEMES
+  } catch {
+    return MOCK_SAVED_SCHEMES
+  }
+}
+
+export const saveScheme = (scheme) => {
+  const saved = getSavedSchemes()
+  const exists = saved.find(s => s.id === scheme.id)
+  if (exists) return
+  const updated = [...saved, { ...scheme, savedDate: new Date().toISOString().split('T')[0] }]
+  localStorage.setItem(KEYS.SAVED, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_saved_updated'))
+}
+
+export const removeSavedScheme = (id) => {
+  const saved = getSavedSchemes()
+  const updated = saved.filter(s => s.id !== id)
+  localStorage.setItem(KEYS.SAVED, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_saved_updated'))
+}
+
+export const isSchemesSaved = (id) => {
+  const saved = getSavedSchemes()
+  return saved.some(s => s.id === id)
 }

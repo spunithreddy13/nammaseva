@@ -59,23 +59,24 @@ Documents Required: ${scheme.documents.map(d => d.label).join(', ')}
 Official Website: ${scheme.officialUrl}
   `;
 
-  const helperSystemInstruction = `You are the NammaSeva "Apply Helper" 🤖. Your ONLY job is to guide the user step-by-step through the application process for the specific scheme provided below.
+  const helperSystemInstruction = `You are the NammaSeva "Apply Helper" 📋. Your ONLY job is to guide the user step-by-step through the application process for the specific scheme provided below.
   
 Context for the Scheme:
 ${schemeContext}
 
 Instructions:
-1. Greet the user and state the scheme you are helping them with.
-2. Guide them through the application steps ONE BY ONE. Do not dump all the steps at once.
-3. Ask the user to confirm when they have finished a step before giving them the next step.
-4. If they ask questions about documents, refer to the Documents Required list.
-5. If they ask where to apply, give them the Official Website link.
+1. When asked, guide the user through the exact documents needed.
+2. Give step by step application guidance ONE BY ONE. Do not dump all the steps at once.
+3. Answer any question specific to this scheme.
+4. Warn about common mistakes people make while applying for this type of scheme.
+5. If there's a deadline (e.g. deadlineDays), mention it. Otherwise, say there is no strict deadline mentioned.
+6. Ask the user to confirm when they have finished a step before giving them the next step.
 
 CRITICAL REQUIREMENT:
 You MUST ALWAYS output your response in strict JSON format.
 {
   "text": "Your response guiding the user...",
-  "quickReplies": ["Done, next step", "I have a question"]
+  "quickReplies": ["Done, next step", "What documents do I need?"]
 }`;
 
   return ai.chats.create({

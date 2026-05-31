@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getSchemeById, getSimilarSchemes, checkCriterion, SCHEMES } from '../data/schemes'
-import { getProfile, calculateMatch } from '../utils/userStore'
+import { getProfile, calculateMatch, isSchemesSaved, saveScheme, removeSavedScheme } from '../utils/userStore'
 import ApplyHelperBot from '../components/ApplyHelperBot'
 import './SchemeDetailPage.css'
 
@@ -83,7 +83,31 @@ const SchemeDetailPage = () => {
   const matchScore = scheme ? calculateMatch(scheme.id, profile) : null
   const similar  = scheme ? getSimilarSchemes(scheme) : []
 
-  const [saved, setSaved] = useState(false)
+  const [saved, setSaved] = useState(scheme ? isSchemesSaved(scheme.id) : false)
+
+  useEffect(() => {
+    if (scheme) setSaved(isSchemesSaved(scheme.id))
+  }, [scheme])
+
+  const handleToggleSave = () => {
+    if (!scheme) return
+    if (saved) {
+      removeSavedScheme(scheme.id)
+    } else {
+      saveScheme({
+        id: scheme.id,
+        name: scheme.name,
+        category: scheme.category,
+        categoryColor: scheme.categoryColor,
+        type: scheme.type === 'private' ? 'Private' : scheme.type === 'ngo' ? 'NGO' : 'Government',
+        matchScore: matchScore || 0,
+        deadline: scheme.deadlineDays ? `${scheme.deadlineDays} Days left` : 'Ongoing',
+        description: scheme.description,
+        state: scheme.gov || 'Central'
+      })
+    }
+    setSaved(!saved)
+  }
   const [checkedDocs, setCheckedDocs] = useState({})
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
@@ -138,7 +162,7 @@ const SchemeDetailPage = () => {
           Back to Dashboard
         </button>
         <div className="sdp-topnav__actions">
-          <button className={`sdp-action-btn ${saved ? 'sdp-action-btn--saved' : ''}`} onClick={() => setSaved(s => !s)}>
+          <button className={`sdp-action-btn ${saved ? 'sdp-action-btn--saved' : ''}`} onClick={handleToggleSave}>
             {saved ? '🔖 Saved' : '🏷️ Save'}
           </button>
           <button className="sdp-action-btn" onClick={handleShare}>
@@ -386,8 +410,8 @@ const SchemeDetailPage = () => {
                   </svg>
                   Apply on Official Website
                 </a>
-                <button className="sdp-apply-btn" style={{ background: '#eef2ff', color: '#4338ca', marginLeft: '12px' }} onClick={() => setShowHelperBot(true)}>
-                  🤖 Need Help? Ask SevAI
+                <button className="sdp-apply-btn" style={{ background: '#ecfdf5', color: '#059669', marginLeft: '12px', border: '1px solid #10b981' }} onClick={() => setShowHelperBot(true)}>
+                  Apply Helper 📋
                 </button>
                 <p className="sdp-apply-note">
                   You will be redirected to the official government portal. NammaSeva does not process applications directly.
@@ -438,12 +462,12 @@ const SchemeDetailPage = () => {
             Apply on Official Site
           </a>
 
-          <button className="sdp-apply-btn-sidebar" style={{ marginTop: '8px', background: '#eef2ff', color: '#4338ca' }} onClick={() => setShowHelperBot(true)}>
-            🤖 Need Help Applying?
+          <button className="sdp-apply-btn-sidebar" style={{ marginTop: '8px', background: '#ecfdf5', color: '#059669', border: '1px solid #10b981' }} onClick={() => setShowHelperBot(true)}>
+            Apply Helper 📋
           </button>
 
           <div className="sdp-sidebar-actions">
-            <button className={`sdp-sidebar-btn ${saved ? 'sdp-sidebar-btn--active' : ''}`} onClick={() => setSaved(s => !s)}>
+            <button className={`sdp-sidebar-btn ${saved ? 'sdp-sidebar-btn--active' : ''}`} onClick={handleToggleSave}>
               {saved ? '🔖 Saved' : '🏷️ Save Scheme'}
             </button>
             <button className="sdp-sidebar-btn" onClick={handleShare}>

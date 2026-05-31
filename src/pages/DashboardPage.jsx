@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getUser, getProfile, getProfileCompletion, calculateMatch, getOverallMatchScore, clearUser } from '../utils/userStore'
+import { getUser, getProfile, getProfileCompletion, calculateMatch, getOverallMatchScore, clearUser, getNotifications, saveScheme, removeSavedScheme, isSchemesSaved } from '../utils/userStore'
 import { SCHEMES, countByType } from '../data/schemes'
 import './DashboardPage.css'
 
@@ -131,11 +131,11 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
             <button
-              className={`db-scheme-card__save ${scheme.saved ? 'db-scheme-card__save--saved' : ''}`}
-              onClick={() => onSave(scheme.id)}
-              title={scheme.saved ? 'Unsave' : 'Save'}
+              className={`db-scheme-card__save ${isSchemesSaved(scheme.id) ? 'db-scheme-card__save--saved' : ''}`}
+              onClick={() => onSave(scheme)}
+              title={isSchemesSaved(scheme.id) ? 'Unsave' : 'Save'}
             >
-              {scheme.saved ? '🔖' : '🏷️'}
+              {isSchemesSaved(scheme.id) ? '🔖' : '🏷️'}
             </button>
           </>
         )}
@@ -163,12 +163,23 @@ const DashboardPage = () => {
     if (!user) navigate('/login')
   }, [user, navigate])
 
-  const [schemes, setSchemes] = useState(SCHEMES)
+  const schemes = SCHEMES
   const [activeFilter, setActiveFilter] = useState('All')
   const [activeGov, setActiveGov] = useState('All')
   const [searchQuery, setSearchQuery] = useState('')
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    const updateCount = () => {
+      const notifs = getNotifications()
+      setUnreadCount(notifs.filter(n => !n.read).length)
+    }
+    updateCount()
+    window.addEventListener('ns_notifs_updated', updateCount)
+    return () => window.removeEventListener('ns_notifs_updated', updateCount)
+  }, [])
 
   useEffect(() => {
     const handler = (e) => {
@@ -178,7 +189,26 @@ const DashboardPage = () => {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const handleSave = (id) => setSchemes(prev => prev.map(s => s.id === id ? { ...s, saved: !s.saved } : s))
+  const [, setRefresh] = useState(0)
+
+  const handleSave = (scheme) => {
+    if (isSchemesSaved(scheme.id)) {
+      removeSavedScheme(scheme.id)
+    } else {
+      saveScheme({
+        id: scheme.id,
+        name: scheme.name,
+        category: scheme.category,
+        categoryColor: scheme.categoryColor,
+        type: scheme.type === 'private' ? 'Private' : scheme.type === 'ngo' ? 'NGO' : 'Government',
+        matchScore: scheme.matchScore || 0,
+        deadline: scheme.deadlineDays ? `${scheme.deadlineDays} Days left` : 'Ongoing',
+        description: scheme.description,
+        state: scheme.gov || 'Central'
+      })
+    }
+    setRefresh(r => r + 1)
+  }
 
   const handleSignOut = () => {
     clearUser()
@@ -207,7 +237,6 @@ const DashboardPage = () => {
     return a.id - b.id
   })
 
-  const savedCount = schemes.filter(s => s.saved).length
   const deadlines = schemesWithMatch.filter(s => s.deadlineDays && s.deadlineDays < 50).sort((a, b) => a.deadlineDays - b.deadlineDays)
 
   // Display name: prefer profile full name, else user name from login
@@ -250,7 +279,7 @@ const DashboardPage = () => {
           <div className="db-notif-wrap" ref={notifRef}>
             <button className={`db-notif-btn ${notifOpen ? 'db-notif-btn--active' : ''}`} onClick={() => setNotifOpen(o => !o)}>
               <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-              {!profile && <span className="db-notif-badge">1</span>}
+              {unreadCount > 0 && <span className="db-notif-badge">{unreadCount}</span>}
             </button>
             {notifOpen && (
               <div className="db-notif-panel">
@@ -272,7 +301,7 @@ const DashboardPage = () => {
                     </div>
                   </div>
                 )}
-                <button className="db-notif-panel__all">View all</button>
+                <button className="db-notif-panel__all" onClick={() => navigate('/notifications')}>View all</button>
               </div>
             )}
           </div>

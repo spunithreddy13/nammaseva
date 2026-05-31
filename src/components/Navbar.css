@@ -294,6 +294,56 @@
 }
 
 .navbar__mobile-actions .btn {
+  width: 100%;
+}
+
+/* Bell Icon */
+.navbar__bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: #0B2D6B;
+  background: rgba(11, 45, 107, 0.05);
+  transition: all 0.2s ease;
+  margin-right: 8px;
+}
+
+.navbar--scrolled .navbar__bell {
+  color: #0B2D6B;
+  background: #f1f5f9;
+}
+
+.navbar--scrolled .navbar__bell:hover {
+  background: #e2e8f0;
+}
+
+.navbar__bell:hover {
+  background: rgba(11, 45, 107, 0.1);
+}
+
+.navbar__bell-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #FF6B00;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid white;
+}
+
+.navbar__mobile-actions .btn {
   justify-content: center;
   padding: 14px 22px;
   font-size: 15px;

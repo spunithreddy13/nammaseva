@@ -4,7 +4,7 @@ import './ApplyHelperBot.css'
 
 const ApplyHelperBot = ({ scheme, onClose }) => {
   const [messages, setMessages] = useState([
-    { text: `Hi! I'm the Apply Helper. Let's start the application for ${scheme.name}. I'll guide you step-by-step. Ready?`, sender: 'bot', quickReplies: ["Yes, start guide", "Not right now"] }
+    { text: `I see you're interested in ${scheme.name}. Would you like help applying?`, sender: 'bot', quickReplies: ["Yes, please guide me", "What are the common mistakes?"] }
   ])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
@@ -55,7 +55,7 @@ const ApplyHelperBot = ({ scheme, onClose }) => {
       <div className="helper-bot-panel">
         <div className="helper-bot-header">
           <div className="helper-bot-header__info">
-            <div className="helper-bot-header__icon">🚀</div>
+            <div className="helper-bot-header__icon">📋</div>
             <div>
               <div className="helper-bot-header__title">Apply Helper</div>
               <div className="helper-bot-header__sub">{scheme.name}</div>
@@ -67,7 +67,7 @@ const ApplyHelperBot = ({ scheme, onClose }) => {
         <div className="helper-bot-body">
           {messages.map((m, i) => (
             <div key={i} className={`helper-msg-wrap helper-msg-wrap--${m.sender}`}>
-              {m.sender === 'bot' && <div className="helper-avatar">🤖</div>}
+              {m.sender === 'bot' && <div className="helper-avatar">📋</div>}
               {m.sender === 'user' && <div className="helper-avatar">👤</div>}
               <div className="helper-msg-content">
                 <div className={`helper-msg helper-msg--${m.sender}`}>
@@ -85,7 +85,7 @@ const ApplyHelperBot = ({ scheme, onClose }) => {
           ))}
           {isTyping && (
             <div className="helper-msg-wrap helper-msg-wrap--bot">
-              <div className="helper-avatar">🤖</div>
+              <div className="helper-avatar">📋</div>
               <div className="helper-msg-content">
                 <div className="helper-msg helper-msg--bot" style={{ color: '#94a3b8' }}>Typing...</div>
               </div>
