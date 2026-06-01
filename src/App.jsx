@@ -9,6 +9,7 @@ import SchemeDetailPage from './pages/SchemeDetailPage'
 import NotificationsPage from './pages/NotificationsPage'
 import ApplicationsPage from './pages/ApplicationsPage'
 import SavedSchemesPage from './pages/SavedSchemesPage'
+import FeedbackPage from './pages/FeedbackPage'
 import Chatbot from './components/Chatbot'
 import './App.css'
 
@@ -27,6 +28,7 @@ function App() {
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/applications" element={<ApplicationsPage />} />
             <Route path="/saved" element={<SavedSchemesPage />} />
+            <Route path="/feedback" element={<FeedbackPage />} />
           </Routes>
           <Chatbot />
         </div>

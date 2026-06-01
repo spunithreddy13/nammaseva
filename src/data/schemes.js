@@ -240,6 +240,7 @@ export const SCHEMES = [
       { id: 'e1', label: 'Rural household — not in urban area', key: 'always', match: true, icon: '🏘️' },
       { id: 'e2', label: 'Houseless or living in kutcha/dilapidated house', key: 'always', match: true, icon: '🏚️' },
       { id: 'e3', label: 'Annual family income below ₹5 Lakhs', key: 'income', match: ['Below ₹1 Lakh per year', '₹1 – 2.5 Lakhs per year', '₹2.5 – 5 Lakhs per year'], icon: '💰' },
+      { id: 'e4', label: 'Priority for SC/ST and vulnerable groups', key: 'caste', match: ['SC (Scheduled Caste)', 'ST (Scheduled Tribe)'], icon: '📋' },
     ],
     documents: [
       { id: 'd1', label: 'Aadhaar Card', required: true },

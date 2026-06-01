@@ -438,11 +438,11 @@ const SchemeDetailPage = () => {
                   {failCount > 0 && <div className="sdp-match-card__row"><FailIcon /><span>{failCount} criteria not met</span></div>}
                   {unknownCount > 0 && <div className="sdp-match-card__row"><UnknownIcon /><span>{unknownCount} — update profile</span></div>}
                 </div>
-                {failCount > 0 && (
-                  <div className="sdp-match-card__tip">
-                    💡 Your profile has criteria that don't match. You may still apply — check the eligibility tab.
-                  </div>
-                )}
+                <div className="sdp-match-card__tip" style={{ marginTop: '16px', fontSize: '12.5px', color: '#64748b', background: '#f8fafc', padding: '12px', borderRadius: '8px', border: '1px solid #e2e8f0', lineHeight: '1.5' }}>
+                  <strong>How is this calculated?</strong><br/>
+                  Your score increases when your profile matches the scheme's criteria (like state, occupation, or income). Mismatches lower the score.<br/>
+                  <span style={{ display: 'block', marginTop: '6px', color: '#f97316', fontWeight: '500' }}>Check the Eligibility tab for full details.</span>
+                </div>
               </>
             ) : (
               <div className="sdp-match-card__noprofile" onClick={() => navigate('/profile-setup')}>

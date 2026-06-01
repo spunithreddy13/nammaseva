@@ -30,7 +30,8 @@ const ApplyHelperBot = ({ scheme, onClose }) => {
 
     try {
       const response = await chatSessionRef.current.sendMessage({ message: text })
-      const jsonMatch = response.text.match(/\{[\s\S]*\}/)
+      const responseText = typeof response.text === 'function' ? response.text() : response.text;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/)
       
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0])

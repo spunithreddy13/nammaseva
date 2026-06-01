@@ -305,9 +305,6 @@ const DashboardPage = () => {
               </div>
             )}
           </div>
-          <div className="db-avatar" onClick={() => navigate('/profile-setup')}>
-            {user.picture ? <img src={user.picture} alt={displayName} /> : <span>{initials}</span>}
-          </div>
         </div>
       </header>
 
@@ -429,7 +426,10 @@ const DashboardPage = () => {
                   <div className="db-match-score-card__info">
                     <div className="db-match-score-card__label">Your Eligibility</div>
                     <div className="db-match-score-card__title">Match Score</div>
-                    <div className="db-match-score-card__sub">Based on your profile</div>
+                    <div className="db-match-score-card__sub">
+                      Average eligibility across all active schemes.<br/>
+                      <span style={{ fontSize: '11px', opacity: 0.7, marginTop: '4px', display: 'block' }}>Update your profile to improve this score and unlock better matches.</span>
+                    </div>
                   </div>
                 </div>
               ) : (

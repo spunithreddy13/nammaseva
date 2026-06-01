@@ -144,6 +144,7 @@ const SCHEME_CRITERIA = {
   7: { // PMAY Rural
     occupations: ['farmer', 'daily', 'unemployed'],
     states: null,
+    castes: ['SC (Scheduled Caste)', 'ST (Scheduled Tribe)'],
     incomeMax: '₹2.5 – 5 Lakhs per year',
     interests: ['housing'],
   },

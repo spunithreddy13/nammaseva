@@ -36,7 +36,8 @@ const Chatbot = () => {
     try {
       const response = await chatSessionRef.current.sendMessage({ message: text })
       // Extract JSON from the response text
-      const jsonMatch = response.text.match(/\{[\s\S]*\}/)
+      const responseText = typeof response.text === 'function' ? response.text() : response.text;
+      const jsonMatch = responseText.match(/\{[\s\S]*\}/)
       
       if (jsonMatch) {
         const result = JSON.parse(jsonMatch[0])
