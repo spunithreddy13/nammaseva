@@ -1,20 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUser, getSavedSchemes } from '../utils/userStore'
+import { SCHEMES } from '../data/schemes'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import './FeedbackPage.css'
 
-const SCHEME_OPTIONS = [
-  'PM-KISAN Samman Nidhi', 
-  'Ayushman Bharat PMJAY', 
-  'Karnataka Raita Siri', 
-  'NSP Scholarship',
-  'Tata Trusts Education Grant', 
-  'MUDRA Loan Scheme',
-  'Gruha Lakshmi', 
-  'Infosys Foundation Scholarship'
-]
+const SCHEME_OPTIONS = SCHEMES.map(s => s.name)
 
 const SCHEME_EXP_TAGS = [
   'Easy to Apply', 'Got the Benefit', 'Documents Were Clear',

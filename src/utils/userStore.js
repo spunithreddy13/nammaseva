@@ -105,9 +105,9 @@ export const removeNotification = (id) => {
 const SCHEME_CRITERIA = {
   1: { // PM-KISAN
     occupations: ['farmer'],
-    states: null, // central — all states
+    states: null,
     castes: null, // all categories
-    incomeMax: '₹5 – 8 Lakhs per year', // up to
+    incomeMax: '₹5 – 8 Lakhs per year',
     interests: ['agriculture'],
   },
   2: { // Karnataka Raita Siri
@@ -116,14 +116,14 @@ const SCHEME_CRITERIA = {
     castes: null,
     interests: ['agriculture'],
   },
-  3: { // NSP Scholarship
+  3: { // NSP OBC/SC/ST Scholarship
     occupations: ['student'],
     states: null,
     castes: ['OBC (Other Backward Class)', 'SC (Scheduled Caste)', 'ST (Scheduled Tribe)'],
     interests: ['education'],
   },
   4: { // Ayushman Bharat PMJAY
-    occupations: null, // all
+    occupations: null,
     states: null,
     castes: null,
     incomeMax: '₹5 – 8 Lakhs per year',
@@ -152,7 +152,33 @@ const SCHEME_CRITERIA = {
     occupations: null,
     states: ['Karnataka'],
     incomeMax: '₹2.5 – 5 Lakhs per year',
-    interests: [],
+    interests: ['food'],
+  },
+  9: { // PM-USP Central Sector Scholarship (Open to General, EWS, OBC, SC, ST)
+    occupations: ['student'],
+    states: null,
+    castes: ['General', 'EWS (Economically Weaker Section)', 'OBC (Other Backward Class)', 'SC (Scheduled Caste)', 'ST (Scheduled Tribe)'],
+    interests: ['education'],
+  },
+  10: { // Dr. Ambedkar Post-Matric Scholarship for EWS / General
+    occupations: ['student'],
+    states: null,
+    castes: ['General', 'EWS (Economically Weaker Section)'],
+    incomeMax: '₹2.5 – 5 Lakhs per year',
+    interests: ['education'],
+  },
+  11: { // PM YASASVI OBC Scholarship
+    occupations: ['student'],
+    states: null,
+    castes: ['OBC (Other Backward Class)'],
+    incomeMax: '₹2.5 – 5 Lakhs per year',
+    interests: ['education'],
+  },
+  12: { // National Overseas Scholarship for SC / ST
+    occupations: ['student'],
+    states: null,
+    castes: ['SC (Scheduled Caste)', 'ST (Scheduled Tribe)'],
+    interests: ['education'],
   },
   // ── Private Schemes ──
   101: { occupations: ['farmer'], states: null, castes: null, interests: ['agriculture'] }, // SBI KCC
@@ -160,7 +186,7 @@ const SCHEME_CRITERIA = {
   103: { occupations: null, states: null, castes: null, interests: ['healthcare'] }, // Star Health
   104: { occupations: ['business', 'other'], states: null, castes: null, interests: ['business'] }, // Startup Seed Fund
   // ── NGO Schemes ──
-  105: { occupations: ['student'], states: null, castes: null, interests: ['education'] }, // Tata Trusts
+  105: { occupations: ['student'], states: null, castes: null, interests: ['education'] }, // Tata Trusts (Open to All including General)
   106: { occupations: ['student'], states: ['Karnataka', 'Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Kerala'], castes: null, interests: ['education'] }, // Infosys Foundation
   107: { occupations: ['farmer', 'business', 'daily', 'other', 'unemployed'], states: null, genders: ['female'], interests: ['business'] }, // Rang De
   108: { occupations: ['student'], states: null, incomeMax: '₹2.5 – 5 Lakhs per year', interests: ['education'] }, // Pratham
@@ -183,60 +209,61 @@ export const calculateMatch = (schemeId, profile) => {
   if (!criteria) return null
 
   let score = 40 // base eligibility
-  let factors = 0
-  let matched = 0
 
-  // Occupation
-  if (criteria.occupations) {
-    factors++
-    if (criteria.occupations.includes(profile.occupation)) matched++
-    else score -= 25 // occupation mismatch is a big deal
+  // 1. Strict Occupation Check
+  if (criteria.occupations && criteria.occupations.length > 0) {
+    if (!criteria.occupations.includes(profile.occupation)) {
+      return 0 // Disqualified: Wrong occupation
+    }
+    score += 15
+  }
+
+  // 2. Strict Gender Check
+  if (criteria.genders && criteria.genders.length > 0) {
+    if (!criteria.genders.includes(profile.gender)) {
+      return 0 // Disqualified: Wrong gender (e.g. Male for Women-only scheme)
+    }
+    score += 15
+  }
+
+  // 3. Strict Caste / Category Check
+  if (criteria.castes && criteria.castes.length > 0) {
+    if (!criteria.castes.includes(profile.caste)) {
+      return 0 // Disqualified: Scheme is reserved for other caste categories
+    }
+    score += 20
   } else {
-    score += 10 // open to all occupations → bonus
+    score += 5 // Open to all castes (including General)
   }
 
-  // State
-  if (criteria.states) {
-    factors++
-    if (criteria.states.includes(profile.state)) { matched++; score += 20 }
-    else { score -= 30 } // state scheme for different state = very low match
+  // 4. Strict State Check
+  if (criteria.states && criteria.states.length > 0) {
+    if (!criteria.states.includes(profile.state)) {
+      return 0 // Disqualified: Scheme is restricted to specific state(s)
+    }
+    score += 20
   } else {
-    score += 8 // central scheme → applies to all
+    score += 10 // Central scheme
   }
 
-  // Caste
-  if (criteria.castes) {
-    factors++
-    if (criteria.castes.includes(profile.caste)) { matched++; score += 15 }
-    else score -= 20
-  } else {
-    score += 5
-  }
-
-  // Gender
-  if (criteria.genders) {
-    factors++
-    if (criteria.genders.includes(profile.gender)) { matched++; score += 15 }
-    else score -= 35
-  }
-
-  // Income
+  // 5. Income Ceiling Check
   if (criteria.incomeMax && profile.income) {
-    factors++
     const profileIdx = INCOME_ORDER.indexOf(profile.income)
     const maxIdx = INCOME_ORDER.indexOf(criteria.incomeMax)
-    if (profileIdx <= maxIdx) { matched++; score += 10 }
-    else score -= 10
+    if (profileIdx <= maxIdx) {
+      score += 15
+    } else {
+      return 0 // Disqualified: Income exceeds maximum ceiling for this scheme
+    }
   }
 
-  // Interests
+  // 6. Interest Match Bonus
   if (criteria.interests?.length > 0 && profile.interests?.length > 0) {
     const interestMatch = criteria.interests.some(i => profile.interests.includes(i))
-    if (interestMatch) score += 8
+    if (interestMatch) score += 10
   }
 
-  // Clamp between 5 and 98
-  return Math.max(5, Math.min(98, Math.round(score)))
+  return Math.max(0, Math.min(98, Math.round(score)))
 }
 
 /* Overall match score = avg of all scheme matches */
@@ -308,7 +335,7 @@ export const getSavedSchemes = () => {
     const stored = localStorage.getItem(KEYS.SAVED)
     if (stored) {
       const parsed = JSON.parse(stored)
-      if (parsed.length >= 4) return parsed
+      if (Array.isArray(parsed)) return parsed
     }
     localStorage.setItem(KEYS.SAVED, JSON.stringify(MOCK_SAVED_SCHEMES))
     return MOCK_SAVED_SCHEMES

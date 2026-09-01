@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import HeroSection from '../components/HeroSection'
 import HowItWorks from '../components/HowItWorks'
 import StatsSection from '../components/StatsSection'
+import Testimonials from '../components/Testimonials'
 import Footer from '../components/Footer'
 import './LandingPage.css'
 
@@ -13,6 +14,7 @@ const LandingPage = () => {
       <HeroSection />
       <HowItWorks />
       <StatsSection />
+      <Testimonials />
       <CTABanner />
       <Footer />
     </div>

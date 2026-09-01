@@ -7,17 +7,25 @@ const HeroSection = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
+    let rafId = null
     const handleMouseMove = (e) => {
-      const rect = heroRef.current?.getBoundingClientRect()
-      if (rect) {
-        setMousePos({
-          x: ((e.clientX - rect.left) / rect.width - 0.5) * 20,
-          y: ((e.clientY - rect.top) / rect.height - 0.5) * 20,
-        })
-      }
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        const rect = heroRef.current?.getBoundingClientRect()
+        if (rect) {
+          setMousePos({
+            x: ((e.clientX - rect.left) / rect.width - 0.5) * 20,
+            y: ((e.clientY - rect.top) / rect.height - 0.5) * 20,
+          })
+        }
+        rafId = null
+      })
     }
     window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
   }, [])
 
   const particles = Array.from({ length: 18 }, (_, i) => i)

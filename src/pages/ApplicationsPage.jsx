@@ -8,12 +8,13 @@ import './ApplicationsPage.css'
 const MOCK_APPLICATIONS = [
   {
     id: 'app_001',
+    schemeId: 4,
     schemeName: 'Ayushman Bharat PMJAY',
     category: 'Health',
     categoryColor: '#10b981',
-    appliedDate: '2024-01-15',
+    appliedDate: '2025-01-15',
     status: 'approved',
-    lastUpdated: '2024-02-01',
+    lastUpdated: '2025-02-01',
     timeline: [
       { step: 'Applied', done: true, date: '15 Jan' },
       { step: 'Under Review', done: true, date: '20 Jan' },
@@ -23,12 +24,13 @@ const MOCK_APPLICATIONS = [
   },
   {
     id: 'app_002',
+    schemeId: 1,
     schemeName: 'PM-KISAN Samman Nidhi',
     category: 'Agriculture',
     categoryColor: '#f59e0b',
-    appliedDate: '2024-02-10',
+    appliedDate: '2025-02-10',
     status: 'pending',
-    lastUpdated: '2024-02-10',
+    lastUpdated: '2025-02-10',
     timeline: [
       { step: 'Applied', done: true, date: '10 Feb' },
       { step: 'Under Review', done: false, date: '' },
@@ -38,12 +40,13 @@ const MOCK_APPLICATIONS = [
   },
   {
     id: 'app_003',
+    schemeId: 2,
     schemeName: 'Karnataka Raita Siri',
     category: 'Agriculture',
     categoryColor: '#f59e0b',
-    appliedDate: '2024-01-05',
+    appliedDate: '2025-01-05',
     status: 'under_review',
-    lastUpdated: '2024-01-20',
+    lastUpdated: '2025-01-20',
     timeline: [
       { step: 'Applied', done: true, date: '5 Jan' },
       { step: 'Under Review', done: true, date: '20 Jan' },
@@ -53,12 +56,13 @@ const MOCK_APPLICATIONS = [
   },
   {
     id: 'app_004',
+    schemeId: 105,
     schemeName: 'Tata Trusts Education Grant',
     category: 'Education',
     categoryColor: '#3b82f6',
-    appliedDate: '2023-12-01',
+    appliedDate: '2025-12-01',
     status: 'rejected',
-    lastUpdated: '2024-01-10',
+    lastUpdated: '2025-01-10',
     timeline: [
       { step: 'Applied', done: true, date: '1 Dec' },
       { step: 'Under Review', done: true, date: '15 Dec' },
@@ -199,10 +203,10 @@ const ApplicationsPage = () => {
                   {renderTimeline(app.timeline)}
 
                   <div className="app-card__actions">
-                    <button className="app-btn-outline" onClick={() => navigate(`/scheme/${parseInt(app.id.split('_')[1], 10)}`)}>
+                    <button className="app-btn-outline" onClick={() => navigate(`/scheme/${app.schemeId}`)}>
                       View Details
                     </button>
-                    <button className="app-btn-primary" onClick={() => window.open('#', '_blank')}>
+                    <button className="app-btn-primary" onClick={() => alert('Portal tracking coming soon! Check back for updates.')}>
                       Track on Portal
                     </button>
                   </div>

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { getUser, clearUser, getNotifications } from '../utils/userStore'
+import { useLanguage, LANGUAGES } from '../context/LanguageContext'
+import useTranslation from '../hooks/useTranslation'
 import './Navbar.css'
 
 const Navbar = () => {
@@ -12,6 +14,9 @@ const Navbar = () => {
   const isSolidNavbar = ['/login', '/register', '/dashboard', '/notifications', '/profile-setup'].includes(location.pathname) || location.pathname.startsWith('/scheme')
   const user = getUser()
   const userEmail = user?.email
+
+  const { lang, changeLang } = useLanguage()
+  const { t } = useTranslation()
 
   const updateNotifCount = React.useCallback(() => {
     if (!userEmail) return
@@ -39,10 +44,10 @@ const Navbar = () => {
   }, [])
 
   const navLinks = [
-    { label: 'Home', href: '/' },
-    { label: 'How It Works', href: '/#how-it-works' },
-    { label: 'Schemes', href: '/#stats' },
-    { label: 'About', href: '/#about' },
+    { label: t('home'), href: '/' },
+    { label: t('howItWorks'), href: '/#how-it-works' },
+    { label: t('schemes'), href: '/#stats' },
+    { label: t('about'), href: '/#about' },
   ]
 
   return (
@@ -80,8 +85,21 @@ const Navbar = () => {
 
         {/* CTA Buttons / Actions */}
         <div className="navbar__actions">
+          <div className="navbar__lang-switcher">
+            {LANGUAGES.map(l => (
+              <button
+                key={l.code}
+                className={`navbar__lang-btn ${lang === l.code ? 'navbar__lang-btn--active' : ''}`}
+                onClick={() => changeLang(l.code)}
+                title={l.label}
+              >
+                {l.native}
+              </button>
+            ))}
+          </div>
+
           {user && (
-            <button className="navbar__bell" onClick={() => navigate('/notifications')} aria-label="Notifications">
+            <button className="navbar__bell" onClick={() => navigate('/notifications')} aria-label={t('notifications')}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
@@ -92,9 +110,9 @@ const Navbar = () => {
 
           {!user ? (
             <>
-              <Link to="/login" className="btn btn--ghost" id="nav-login-btn">Login</Link>
+              <Link to="/login" className="btn btn--ghost" id="nav-login-btn">{t('login')}</Link>
               <Link to="/register" className="btn btn--saffron" id="nav-register-btn">
-                <span>Register Free</span>
+                <span>{t('registerFree')}</span>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
@@ -102,8 +120,8 @@ const Navbar = () => {
             </>
           ) : (
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <Link to="/dashboard" className="btn btn--saffron" id="nav-dashboard-btn">Dashboard</Link>
-              <button onClick={handleLogout} className="btn btn--ghost" style={{ padding: '8px 16px', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>Logout</button>
+              <Link to="/dashboard" className="btn btn--saffron" id="nav-dashboard-btn">{t('dashboard')}</Link>
+              <button onClick={handleLogout} className="btn btn--ghost" style={{ padding: '8px 16px', color: '#fff', border: '1px solid rgba(255,255,255,0.2)' }}>{t('logout')}</button>
             </div>
           )}
         </div>
@@ -131,21 +149,35 @@ const Navbar = () => {
             {link.label}
           </a>
         ))}
+
+        <div className="navbar__lang-switcher" style={{ margin: '12px 0', justifyContent: 'center' }}>
+          {LANGUAGES.map(l => (
+            <button
+              key={l.code}
+              className={`navbar__lang-btn ${lang === l.code ? 'navbar__lang-btn--active' : ''}`}
+              onClick={() => changeLang(l.code)}
+              title={l.label}
+            >
+              {l.native}
+            </button>
+          ))}
+        </div>
+
         <div className="navbar__mobile-actions">
           {user ? (
             <>
               <button className="navbar__bell" onClick={() => { setMenuOpen(false); navigate('/notifications') }} style={{ width: '100%', borderRadius: '12px', background: 'rgba(255,255,255,0.1)', color: 'white', marginBottom: '10px' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  Notifications {unreadCount > 0 && <span style={{ background: '#FF6B00', padding: '2px 8px', borderRadius: '100px', fontSize: '12px' }}>{unreadCount} New</span>}
+                  {t('notifications')} {unreadCount > 0 && <span style={{ background: '#FF6B00', padding: '2px 8px', borderRadius: '100px', fontSize: '12px' }}>{unreadCount} New</span>}
                 </span>
               </button>
-              <Link to="/dashboard" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>Dashboard</Link>
-              <button className="btn btn--ghost-dark" onClick={handleLogout}>Logout</button>
+              <Link to="/dashboard" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>{t('dashboard')}</Link>
+              <button className="btn btn--ghost-dark" onClick={handleLogout}>{t('logout')}</button>
             </>
           ) : (
             <>
-              <Link to="/login" className="btn btn--ghost-dark" onClick={() => setMenuOpen(false)}>Login</Link>
-              <Link to="/register" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>Register Free</Link>
+              <Link to="/login" className="btn btn--ghost-dark" onClick={() => setMenuOpen(false)}>{t('login')}</Link>
+              <Link to="/register" className="btn btn--saffron" onClick={() => setMenuOpen(false)}>{t('registerFree')}</Link>
             </>
           )}
         </div>

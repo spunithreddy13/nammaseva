@@ -108,7 +108,16 @@ const SchemeDetailPage = () => {
     }
     setSaved(!saved)
   }
-  const [checkedDocs, setCheckedDocs] = useState({})
+  const [checkedDocs, setCheckedDocs] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`ns_docs_${id}`)
+      return stored ? JSON.parse(stored) : {}
+    } catch { return {} }
+  })
+  const updateCheckedDocs = (newDocs) => {
+    setCheckedDocs(newDocs)
+    localStorage.setItem(`ns_docs_${id}`, JSON.stringify(newDocs))
+  }
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
   const [showHelperBot, setShowHelperBot] = useState(false)
@@ -134,7 +143,7 @@ const SchemeDetailPage = () => {
   const failCount    = criteria.filter(c => c.status === 'fail').length
   const unknownCount = criteria.filter(c => c.status === 'unknown').length
 
-  const toggleDoc = (id) => setCheckedDocs(prev => ({ ...prev, [id]: !prev[id] }))
+  const toggleDoc = (id) => updateCheckedDocs({ ...checkedDocs, [id]: !checkedDocs[id] })
   const checkedCount = Object.values(checkedDocs).filter(Boolean).length
 
   const handleShare = async () => {

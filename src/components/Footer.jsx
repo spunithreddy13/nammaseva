@@ -1,11 +1,36 @@
+import { Link } from 'react-router-dom'
 import './Footer.css'
 
 const Footer = () => {
   const links = {
-    Platform: ['How It Works', 'Browse Schemes', 'Get Recommendations', 'Track Application', 'FAQ'],
-    Categories: ['Education', 'Healthcare', 'Agriculture', 'Housing', 'Women Empowerment'],
-    States: ['Karnataka', 'Tamil Nadu', 'Andhra Pradesh', 'Telangana', 'Kerala'],
-    Company: ['About Us', 'Blog', 'Press', 'Careers', 'Contact Us'],
+    Platform: [
+      { label: 'How It Works', path: '/#how-it-works' },
+      { label: 'Browse Schemes', path: '/dashboard' },
+      { label: 'Get Recommendations', path: '/profile-setup' },
+      { label: 'Track Application', path: '/applications' },
+      { label: 'Feedback', path: '/feedback' },
+    ],
+    Categories: [
+      { label: 'Education', path: '/dashboard' },
+      { label: 'Healthcare', path: '/dashboard' },
+      { label: 'Agriculture', path: '/dashboard' },
+      { label: 'Housing', path: '/dashboard' },
+      { label: 'Women Empowerment', path: '/dashboard' },
+    ],
+    States: [
+      { label: 'Karnataka', path: '/dashboard' },
+      { label: 'Tamil Nadu', path: '/dashboard' },
+      { label: 'Andhra Pradesh', path: '/dashboard' },
+      { label: 'Telangana', path: '/dashboard' },
+      { label: 'Kerala', path: '/dashboard' },
+    ],
+    Company: [
+      { label: 'About Us', path: '/#about' },
+      { label: 'Feedback', path: '/feedback' },
+      { label: 'Saved Schemes', path: '/saved' },
+      { label: 'Notifications', path: '/notifications' },
+      { label: 'Contact Us', path: '/feedback' },
+    ],
   }
 
   return (
@@ -82,8 +107,8 @@ const Footer = () => {
                 <h4 className="footer__col-title">{category}</h4>
                 <ul className="footer__links">
                   {items.map((item) => (
-                    <li key={item}>
-                      <a href="#" className="footer__link">{item}</a>
+                    <li key={item.label}>
+                      <Link to={item.path} className="footer__link">{item.label}</Link>
                     </li>
                   ))}
                 </ul>
@@ -97,7 +122,7 @@ const Footer = () => {
           {/* Bottom Bar */}
           <div className="footer__bottom">
             <div className="footer__bottom-left">
-              <span>© 2024 NammaSeva. Made with ❤️ in Karnataka, India</span>
+              <span>© {new Date().getFullYear()} NammaSeva. Made with ❤️ in Karnataka, India</span>
             </div>
             <div className="footer__bottom-badges">
               <div className="footer__badge-item">🇮🇳 Government Data Source</div>

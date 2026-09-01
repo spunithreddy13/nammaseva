@@ -2,24 +2,13 @@ import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getUser, getProfile, getProfileCompletion, calculateMatch, getOverallMatchScore, clearUser, getNotifications, saveScheme, removeSavedScheme, isSchemesSaved } from '../utils/userStore'
 import { SCHEMES, countByType } from '../data/schemes'
+import useTranslation from '../hooks/useTranslation'
 import './DashboardPage.css'
-
-const CATEGORIES = ['All', 'Agriculture', 'Healthcare', 'Education', 'Housing', 'Business', 'Women Empowerment', 'Food Security']
-const GOVTYPES = ['All', 'Central', 'State', 'Private & NGO']
-
-const NAV_ITEMS = [
-  { icon: '🏠', label: 'Dashboard', path: '/dashboard', active: true },
-  { icon: '🔍', label: 'Browse Schemes', path: '/schemes', active: false },
-  { icon: '📑', label: 'My Applications', path: '/applications', active: false },
-  { icon: '🔖', label: 'Saved Schemes', path: '/saved', active: false },
-  { icon: '👤', label: 'My Profile', path: '/profile-setup', active: false },
-  { icon: '🔔', label: 'Notifications', path: '/notifications', active: false },
-]
 
 /* ═══════════════════════════════════════════
    MATCH RING SVG
 ═══════════════════════════════════════════ */
-const MatchRing = ({ score, size = 88 }) => {
+const MatchRing = ({ score, size = 88, matchLabel }) => {
   const r = (size / 2) - 9
   const circ = 2 * Math.PI * r
   const offset = circ - (score / 100) * circ
@@ -36,7 +25,7 @@ const MatchRing = ({ score, size = 88 }) => {
         style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)' }}
       />
       <text x={size/2} y={size/2 + 1} textAnchor="middle" fontSize="16" fontWeight="800" fill={color} fontFamily="Poppins,sans-serif">{score}%</text>
-      <text x={size/2} y={size/2 + 14} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.6)" fontFamily="Poppins,sans-serif">MATCH</text>
+      <text x={size/2} y={size/2 + 14} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.6)" fontFamily="Poppins,sans-serif">{matchLabel}</text>
     </svg>
   )
 }
@@ -45,6 +34,7 @@ const MatchRing = ({ score, size = 88 }) => {
    SCHEME CARD
 ═══════════════════════════════════════════ */
 const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
+  const { t } = useTranslation()
   const urgency = scheme.deadlineDays
     ? scheme.deadlineDays <= 20 ? 'urgent' : scheme.deadlineDays <= 50 ? 'soon' : ''
     : ''
@@ -52,7 +42,7 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
 
   return (
     <div className={`db-scheme-card ${matchScore >= 80 ? 'db-scheme-card--top' : ''}`}>
-      {matchScore >= 80 && <div className="db-scheme-card__featured-badge">⭐ Top Match</div>}
+      {matchScore >= 80 && <div className="db-scheme-card__featured-badge">{t('topMatch')}</div>}
       {urgency === 'urgent' && <div className="db-scheme-card__deadline db-scheme-card__deadline--urgent">🔴 {scheme.deadlineDays}d left</div>}
       {urgency === 'soon' && !urgency !== 'urgent' && <div className="db-scheme-card__deadline db-scheme-card__deadline--soon">🟡 {scheme.deadlineDays}d left</div>}
 
@@ -73,7 +63,7 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
         {hasProfile && matchScore !== null ? (
           <div className="db-scheme-card__match" style={{ color: matchColor }}>
             <span className="db-scheme-card__match-num">{matchScore}%</span>
-            <span className="db-scheme-card__match-label">match</span>
+            <span className="db-scheme-card__match-label">{t('match')}</span>
           </div>
         ) : (
           <div className="db-scheme-card__match-na">
@@ -89,7 +79,7 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
           </span>
           {(scheme.type === 'private' || scheme.type === 'ngo') && (
             <span className="db-scheme-card__type-tag" style={{ background: scheme.type === 'private' ? '#f3e8ff' : '#e0e7ff', color: scheme.type === 'private' ? '#7e22ce' : '#4338ca' }}>
-              {scheme.type === 'private' ? 'Private' : 'NGO'}
+              {scheme.type === 'private' ? t('private') : 'NGO'}
             </span>
           )}
         </div>
@@ -118,16 +108,16 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
         {scheme.type === 'private' || scheme.type === 'ngo' ? (
           <>
             <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
-              Check Eligibility
+              {t('checkEligibility')}
             </button>
             <a href={scheme.officialUrl} target="_blank" rel="noopener noreferrer" className="db-scheme-card__visit">
-              Visit Website
+              {t('visitWebsite')}
             </a>
           </>
         ) : (
           <>
             <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
-              View Details
+              {t('viewDetails')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
             <button
@@ -150,6 +140,35 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
 const DashboardPage = () => {
   const navigate = useNavigate()
   const notifRef = useRef(null)
+  const { t } = useTranslation()
+
+  // Category and gov type keys for translation
+  const CATEGORIES_KEYS = [
+    { key: 'all', original: 'All' },
+    { key: 'agriculture', original: 'Agriculture' },
+    { key: 'healthcare', original: 'Healthcare' },
+    { key: 'education', original: 'Education' },
+    { key: 'housing', original: 'Housing' },
+    { key: 'business', original: 'Business' },
+    { key: 'womenEmpowerment', original: 'Women Empowerment' },
+    { key: 'foodSecurity', original: 'Food Security' },
+  ]
+
+  const GOVTYPES_KEYS = [
+    { key: 'all', original: 'All' },
+    { key: 'central', original: 'Central' },
+    { key: 'state', original: 'State' },
+    { key: 'privateNGO', original: 'Private & NGO' },
+  ]
+
+  const NAV_ITEMS = [
+    { icon: '🏠', label: t('dashboard'), path: '/dashboard', active: true },
+    { icon: '🔍', label: t('browseSchemes'), path: '/schemes', active: false },
+    { icon: '📑', label: t('myApplications'), path: '/applications', active: false },
+    { icon: '🔖', label: t('savedSchemes'), path: '/saved', active: false },
+    { icon: '👤', label: t('myProfile'), path: '/profile-setup', active: false },
+    { icon: '🔔', label: t('notifications'), path: '/notifications', active: false },
+  ]
 
   // Read REAL data from localStorage
   const user    = getUser()
@@ -163,6 +182,23 @@ const DashboardPage = () => {
     if (!user) navigate('/login')
   }, [user, navigate])
 
+  // Map profile interest values → scheme category names
+  const INTEREST_TO_CATEGORY = {
+    education: 'Education',
+    healthcare: 'Healthcare',
+    agriculture: 'Agriculture',
+    housing: 'Housing',
+    business: 'Business',
+    women: 'Women Empowerment',
+    food: 'Food Security',
+    senior: 'Healthcare',
+    skill: 'Education',
+    disability: 'Healthcare',
+    minority: 'Education',
+    sports: 'Education',
+    arts: 'Education',
+  }
+
   const schemes = SCHEMES
   const [activeFilter, setActiveFilter] = useState('All')
   const [activeGov, setActiveGov] = useState('All')
@@ -170,6 +206,8 @@ const DashboardPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  // "forYou" shows only interest-matched schemes; "all" shows everything
+  const [viewMode, setViewMode] = useState(profile?.interests?.length ? 'forYou' : 'all')
 
   useEffect(() => {
     const updateCount = () => {
@@ -221,14 +259,21 @@ const DashboardPage = () => {
     matchScore: calculateMatch(s.id, profile),
   }))
 
+  // Get categories that match user's interests
+  const userCategories = profile?.interests
+    ? [...new Set(profile.interests.map(i => INTEREST_TO_CATEGORY[i]).filter(Boolean))]
+    : []
+
   // Filter
   const filtered = schemesWithMatch.filter(s => {
+    // "For You" mode: only show schemes matching user's chosen interests where user is eligible (matchScore > 0)
+    const interestOk = viewMode === 'all' || userCategories.length === 0 || (userCategories.includes(s.category) && s.matchScore > 0)
     const catOk = activeFilter === 'All' || s.category === activeFilter
     const govOk = activeGov === 'All' || 
                   (activeGov === 'Private & NGO' && (s.type === 'private' || s.type === 'ngo')) || 
                   s.gov === activeGov
     const searchOk = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.category.toLowerCase().includes(searchQuery.toLowerCase())
-    return catOk && govOk && searchOk
+    return interestOk && catOk && govOk && searchOk
   })
 
   // Sort: highest match first (if profile available), otherwise by id
@@ -270,7 +315,7 @@ const DashboardPage = () => {
         <div className="db-header__center">
           <div className="db-search">
             <svg className="db-search__icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input className="db-search__input" type="text" placeholder="Search schemes, categories…" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+            <input className="db-search__input" type="text" placeholder={t('searchPlaceholder')} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
             {searchQuery && <button className="db-search__clear" onClick={() => setSearchQuery('')}>✕</button>}
           </div>
         </div>
@@ -283,25 +328,25 @@ const DashboardPage = () => {
             </button>
             {notifOpen && (
               <div className="db-notif-panel">
-                <div className="db-notif-panel__header"><span>Notifications</span></div>
+                <div className="db-notif-panel__header"><span>{t('notifications')}</span></div>
                 {!profile ? (
                   <div className="db-notif-item db-notif-item--unread" onClick={() => { navigate('/profile-setup'); setNotifOpen(false) }}>
                     <div className="db-notif-item__icon">👤</div>
                     <div className="db-notif-item__body">
-                      <div className="db-notif-item__text">Complete your profile to see personalized scheme matches</div>
-                      <div className="db-notif-item__time">Tap to set up profile →</div>
+                      <div className="db-notif-item__text">{t('completeProfileBanner')}</div>
+                      <div className="db-notif-item__time">{t('setUpProfile')}</div>
                     </div>
                   </div>
                 ) : (
                   <div className="db-notif-item">
                     <div className="db-notif-item__icon">✅</div>
                     <div className="db-notif-item__body">
-                      <div className="db-notif-item__text">Your profile is set up. Schemes are matched!</div>
+                      <div className="db-notif-item__text">{t('profileComplete')}</div>
                       <div className="db-notif-item__time">Just now</div>
                     </div>
                   </div>
                 )}
-                <button className="db-notif-panel__all" onClick={() => navigate('/notifications')}>View all</button>
+                <button className="db-notif-panel__all" onClick={() => navigate('/notifications')}>{t('notifications')}</button>
               </div>
             )}
           </div>
@@ -336,12 +381,12 @@ const DashboardPage = () => {
                   </div>
                 </>
               ) : (
-                <div className="db-profile-card__loc" style={{ opacity: 0.7 }}>Profile not set up yet</div>
+                <div className="db-profile-card__loc" style={{ opacity: 0.7 }}>{t('profileNotSetup')}</div>
               )}
 
               <div className="db-profile-completion">
                 <div className="db-profile-completion__row">
-                  <span>Profile Complete</span>
+                  <span>{t('profileComplete')}</span>
                   <span>{completion}%</span>
                 </div>
                 <div className="db-profile-completion__bar">
@@ -349,7 +394,7 @@ const DashboardPage = () => {
                 </div>
                 {completion < 100 && (
                   <button className="db-profile-completion__cta" onClick={() => { navigate('/profile-setup'); setSidebarOpen(false) }}>
-                    {completion === 0 ? 'Set Up Profile →' : 'Complete Profile →'}
+                    {completion === 0 ? t('setUpProfile') : t('completeProfile')}
                   </button>
                 )}
               </div>
@@ -358,15 +403,15 @@ const DashboardPage = () => {
             <div className="db-stats">
               <div className="db-stat">
                 <div className="db-stat__num" style={{ color: '#0B2D6B' }}>{counts.govt}</div>
-                <div className="db-stat__label">Govt Schemes</div>
+                <div className="db-stat__label">{t('govtSchemes')}</div>
               </div>
               <div className="db-stat">
                 <div className="db-stat__num" style={{ color: '#7e22ce' }}>{counts.private}</div>
-                <div className="db-stat__label">Private</div>
+                <div className="db-stat__label">{t('private')}</div>
               </div>
               <div className="db-stat">
                 <div className="db-stat__num" style={{ color: '#4338ca' }}>{counts.ngo}</div>
-                <div className="db-stat__label">NGOs</div>
+                <div className="db-stat__label">{t('ngos')}</div>
               </div>
             </div>
 
@@ -383,7 +428,7 @@ const DashboardPage = () => {
 
             <button className="db-logout" onClick={handleSignOut}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-              Sign Out
+              {t('signOut')}
             </button>
           </div>
         </aside>
@@ -394,24 +439,24 @@ const DashboardPage = () => {
           {/* Welcome Banner */}
           <div className="db-welcome">
             <div className="db-welcome__left">
-              <h1 className="db-welcome__title">Namaste, <span>{firstName}</span>! 👋</h1>
+              <h1 className="db-welcome__title">{t('namaste')}, <span>{firstName}</span>! 👋</h1>
               {profile ? (
                 <p className="db-welcome__sub">
-                  We found <strong>{sorted.filter(s => s.matchScore >= 50).length} schemes</strong> you may be eligible for
-                  {profile.state ? <> in <strong>{profile.state}</strong></> : ''}.
+                  {t('weFound')} <strong>{sorted.filter(s => s.matchScore >= 50).length} {t('schemesYouMayBeEligible')}</strong>
+                  {profile.state ? <> {t('in')} <strong>{profile.state}</strong></> : ''}.
                 </p>
               ) : (
                 <p className="db-welcome__sub">
-                  Complete your profile below to see <strong>personalised scheme matches</strong> based on your actual details.
+                  {t('completeYourProfile')} <strong>{t('personalizedMatches')}</strong>
                 </p>
               )}
               <div className="db-welcome__completion">
                 <div className="db-welcome__completion-text">
                   {completion === 0
-                    ? 'Profile not set up — set it up to unlock scheme matches'
+                    ? `${t('profileNotSetup')} — ${t('setUpProfile')}`
                     : completion < 100
-                    ? `Profile ${completion}% complete — add more details for better accuracy`
-                    : 'Profile complete ✅ — matches are based on your details'}
+                    ? `${t('profileComplete')} ${completion}% — ${t('completeProfile')}`
+                    : `${t('profileComplete')} ✅`}
                 </div>
                 <div className="db-welcome__bar">
                   <div className="db-welcome__bar-fill" style={{ width: `${completion}%` }} />
@@ -422,10 +467,10 @@ const DashboardPage = () => {
             <div className="db-welcome__right">
               {overallMatch !== null ? (
                 <div className="db-match-score-card">
-                  <MatchRing score={overallMatch} size={92} />
+                  <MatchRing score={overallMatch} size={92} matchLabel={t('match').toUpperCase()} />
                   <div className="db-match-score-card__info">
-                    <div className="db-match-score-card__label">Your Eligibility</div>
-                    <div className="db-match-score-card__title">Match Score</div>
+                    <div className="db-match-score-card__label">{t('eligibility')}</div>
+                    <div className="db-match-score-card__title">{t('matchScore')}</div>
                     <div className="db-match-score-card__sub">
                       Average eligibility across all active schemes.<br/>
                       <span style={{ fontSize: '11px', opacity: 0.7, marginTop: '4px', display: 'block' }}>Update your profile to improve this score and unlock better matches.</span>
@@ -436,9 +481,9 @@ const DashboardPage = () => {
                 <div className="db-match-score-card db-match-score-card--empty" onClick={() => navigate('/profile-setup')}>
                   <div className="db-match-score-card__empty-icon">👤</div>
                   <div className="db-match-score-card__info">
-                    <div className="db-match-score-card__title">Set Up Profile</div>
-                    <div className="db-match-score-card__sub">To see your match score</div>
-                    <div className="db-match-score-card__cta">Tap to start →</div>
+                    <div className="db-match-score-card__title">{t('setUpProfile')}</div>
+                    <div className="db-match-score-card__sub">{t('matchScore')}</div>
+                    <div className="db-match-score-card__cta">{t('setUpProfile')}</div>
                   </div>
                 </div>
               )}
@@ -450,10 +495,10 @@ const DashboardPage = () => {
             <div className="db-setup-banner" onClick={() => navigate('/profile-setup')}>
               <div className="db-setup-banner__icon">📋</div>
               <div className="db-setup-banner__text">
-                <strong>Your profile is not set up yet.</strong>{' '}
-                Tell us about yourself — your location, income, occupation — and we'll show only the schemes you actually qualify for.
+                <strong>{t('completeProfileBanner')}</strong>{' '}
+                {t('completeProfileDesc')}
               </div>
-              <button className="db-setup-banner__btn">Complete Profile →</button>
+              <button className="db-setup-banner__btn">{t('completeProfile')}</button>
             </div>
           )}
 
@@ -462,31 +507,50 @@ const DashboardPage = () => {
             <div className="db-deadline-banner">
               <div className="db-deadline-banner__icon">⚠️</div>
               <div className="db-deadline-banner__text">
-                <strong>Deadline Alert:</strong> {deadlines[0].name} closes in <strong>{deadlines[0].deadlineDays} days</strong>. Don't miss out!
+                <strong>{t('deadlineAlert')}:</strong> {deadlines[0].name} closes in <strong>{deadlines[0].deadlineDays} days</strong>. {t('dontMissOut')}
               </div>
-              <button className="db-deadline-banner__btn">Apply Now →</button>
+              <button className="db-deadline-banner__btn">{t('applyNow')}</button>
             </div>
           )}
 
-          {/* Filters */}
+          {/* View Mode Toggle + Filters */}
+          {profile?.interests?.length > 0 && (
+            <div className="db-view-toggle">
+              <button
+                className={`db-view-toggle__btn ${viewMode === 'forYou' ? 'db-view-toggle__btn--active' : ''}`}
+                onClick={() => setViewMode('forYou')}
+              >
+                🎯 {t('recommendedForYou') || 'For You'}
+                <span className="db-view-toggle__count">{schemesWithMatch.filter(s => userCategories.includes(s.category) && s.matchScore > 0).length}</span>
+              </button>
+              <button
+                className={`db-view-toggle__btn ${viewMode === 'all' ? 'db-view-toggle__btn--active' : ''}`}
+                onClick={() => setViewMode('all')}
+              >
+                📋 {t('allSchemes') || 'All Schemes'}
+                <span className="db-view-toggle__count">{schemesWithMatch.length}</span>
+              </button>
+            </div>
+          )}
+
           <div className="db-filters">
             <div className="db-filters__row">
               <div className="db-filter-group">
-                <span className="db-filter-group__label">Type:</span>
+                <span className="db-filter-group__label">{t('filterType')}</span>
                 <div className="db-filter-pills">
-                  {GOVTYPES.map(g => (
-                    <button key={g} className={`db-filter-pill ${activeGov === g ? 'db-filter-pill--active' : ''}`} onClick={() => setActiveGov(g)}>
-                      {g === 'Central' ? '🇮🇳 ' : g === 'State' ? '🏛️ ' : g === 'Private & NGO' ? '🏢 ' : ''}{g}
+                  {GOVTYPES_KEYS.map(g => (
+                    <button key={g.key} className={`db-filter-pill ${activeGov === g.original ? 'db-filter-pill--active' : ''}`} onClick={() => setActiveGov(g.original)}>
+                      {t(g.key)}
                     </button>
                   ))}
                 </div>
               </div>
-              <span className="db-filter-count">{sorted.length} schemes</span>
+              <span className="db-filter-count">{sorted.length} {t('schemes').toLowerCase()}</span>
             </div>
             <div className="db-filter-cats">
-              {CATEGORIES.map(cat => (
-                <button key={cat} className={`db-cat-pill ${activeFilter === cat ? 'db-cat-pill--active' : ''}`} onClick={() => setActiveFilter(cat)}>
-                  {cat}
+              {CATEGORIES_KEYS.map(cat => (
+                <button key={cat.key} className={`db-cat-pill ${activeFilter === cat.original ? 'db-cat-pill--active' : ''}`} onClick={() => setActiveFilter(cat.original)}>
+                  {t(cat.key)}
                 </button>
               ))}
             </div>
@@ -497,13 +561,15 @@ const DashboardPage = () => {
             <div className="db-section__header">
               <div className="db-section__title-wrap">
                 <h2 className="db-section__title">
-                  {profile ? '🎯 Recommended For You' : '📋 All Schemes'}
+                  {viewMode === 'forYou' && profile
+                    ? `🎯 ${t('recommendedForYou') || 'Schemes For You'}`
+                    : t('allSchemes') || 'All Schemes'}
                 </h2>
-                {profile && <span className="db-section__badge">{sorted.filter(s => s.matchScore >= 50).length} eligible</span>}
+                {profile && <span className="db-section__badge">{sorted.filter(s => s.matchScore >= 50).length} {t('eligible')}</span>}
               </div>
               {profile && (
                 <div className="db-section__sort">
-                  <span>Sorted by: Best Match</span>
+                  <span>{viewMode === 'forYou' ? `Based on your interests: ${userCategories.join(', ')}` : t('sortedByBestMatch')}</span>
                 </div>
               )}
             </div>
@@ -511,9 +577,9 @@ const DashboardPage = () => {
             {sorted.length === 0 ? (
               <div className="db-empty">
                 <div className="db-empty__icon">🔍</div>
-                <div className="db-empty__title">No schemes found</div>
-                <div className="db-empty__sub">Try adjusting your filters</div>
-                <button className="db-empty__btn" onClick={() => { setActiveFilter('All'); setActiveGov('All'); setSearchQuery('') }}>Clear Filters</button>
+                <div className="db-empty__title">{t('noSchemesFound')}</div>
+                <div className="db-empty__sub">{t('tryAdjustingFilters')}</div>
+                <button className="db-empty__btn" onClick={() => { setActiveFilter('All'); setActiveGov('All'); setSearchQuery('') }}>{t('clearFilters')}</button>
               </div>
             ) : (
               <div className="db-schemes-grid">
@@ -536,8 +602,8 @@ const DashboardPage = () => {
             <section className="db-section">
               <div className="db-section__header">
                 <div className="db-section__title-wrap">
-                  <h2 className="db-section__title">⏰ Deadline Approaching</h2>
-                  <span className="db-section__badge db-section__badge--red">Act Fast!</span>
+                  <h2 className="db-section__title">{t('deadlineApproaching')}</h2>
+                  <span className="db-section__badge db-section__badge--red">{t('actFast')}</span>
                 </div>
               </div>
               <div className="db-deadline-list">
@@ -558,10 +624,10 @@ const DashboardPage = () => {
                     <div className="db-deadline-item__right">
                       {scheme.matchScore !== null && (
                         <div className="db-deadline-item__match" style={{ color: scheme.matchScore >= 60 ? '#22c55e' : '#94a3b8' }}>
-                          {scheme.matchScore}% match
+                          {scheme.matchScore}% {t('match')}
                         </div>
                       )}
-                      <button className="db-deadline-item__btn">Apply →</button>
+                      <button className="db-deadline-item__btn">{t('applyNow')}</button>
                     </div>
                   </div>
                 ))}
@@ -572,7 +638,7 @@ const DashboardPage = () => {
           <div className="db-footer">
             <span>© 2025 NammaSeva</span>
             <span>·</span>
-            <span>Match scores are calculated based on your profile details</span>
+            <span>{t('matchScore')}</span>
           </div>
         </main>
       </div>
