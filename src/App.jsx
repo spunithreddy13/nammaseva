@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastProvider } from './components/Toast'
 import { LanguageProvider } from './context/LanguageContext'
+import { syncWithSupabase } from './utils/userStore'
 import LandingPage from './pages/LandingPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
@@ -15,6 +17,10 @@ import Chatbot from './components/Chatbot'
 import './App.css'
 
 function App() {
+  useEffect(() => {
+    syncWithSupabase()
+  }, [])
+
   return (
     <LanguageProvider>
       <BrowserRouter>

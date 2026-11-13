@@ -1,7 +1,9 @@
 /* ─────────────────────────────────────────────
-   NammaSeva – Simple localStorage user store
-   Persists user auth info and profile data
+   NammaSeva – Dual-Layer Storage Architecture
+   1. Cloud Layer: Supabase (PostgreSQL Cloud DB)
+   2. Offline/Fast Cache Layer: localStorage
 ───────────────────────────────────────────── */
+import { supabase, isSupabaseConfigured } from './supabaseClient'
 
 const KEYS = {
   USER:    'ns_user',
@@ -29,6 +31,29 @@ export const getProfile = () => {
 
 export const setProfile = (data) => {
   localStorage.setItem(KEYS.PROFILE, JSON.stringify(data))
+
+  // Cloud sync if Supabase is connected
+  if (isSupabaseConfigured() && supabase) {
+    const user = getUser()
+    if (user?.id) {
+      supabase.from('profiles').upsert({
+        id: user.id,
+        full_name: data.fullName,
+        dob: data.dob,
+        gender: data.gender,
+        marital_status: data.maritalStatus,
+        state: data.state,
+        district: data.district,
+        language: data.language,
+        caste: data.caste,
+        income: data.income,
+        occupation: data.occupation,
+        interests: data.interests || []
+      }).then(({ error }) => {
+        if (error) console.warn('Supabase profile sync error:', error)
+      })
+    }
+  }
 }
 
 /* ── Profile completion % ── */
@@ -348,9 +373,30 @@ export const saveScheme = (scheme) => {
   const saved = getSavedSchemes()
   const exists = saved.find(s => s.id === scheme.id)
   if (exists) return
-  const updated = [...saved, { ...scheme, savedDate: new Date().toISOString().split('T')[0] }]
+  const item = { ...scheme, savedDate: new Date().toISOString().split('T')[0] }
+  const updated = [...saved, item]
   localStorage.setItem(KEYS.SAVED, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_saved_updated'))
+
+  // Cloud sync if Supabase is connected
+  if (isSupabaseConfigured() && supabase) {
+    const user = getUser()
+    supabase.from('saved_schemes').upsert({
+      id: `saved_${user?.id || 'anon'}_${scheme.id}`,
+      user_id: user?.id || null,
+      scheme_id: scheme.id,
+      scheme_name: scheme.name,
+      category: scheme.category,
+      category_color: scheme.categoryColor,
+      type: scheme.type,
+      match_score: scheme.matchScore || 0,
+      deadline: scheme.deadline,
+      description: scheme.description,
+      state: scheme.state
+    }).then(({ error }) => {
+      if (error) console.warn('Supabase saveScheme error:', error)
+    })
+  }
 }
 
 export const removeSavedScheme = (id) => {
@@ -358,6 +404,13 @@ export const removeSavedScheme = (id) => {
   const updated = saved.filter(s => s.id !== id)
   localStorage.setItem(KEYS.SAVED, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_saved_updated'))
+
+  // Cloud sync if Supabase is connected
+  if (isSupabaseConfigured() && supabase) {
+    supabase.from('saved_schemes').delete().eq('scheme_id', id).then(({ error }) => {
+      if (error) console.warn('Supabase removeSavedScheme error:', error)
+    })
+  }
 }
 
 export const isSchemesSaved = (id) => {
@@ -387,17 +440,19 @@ export const saveApplication = (application) => {
   const existingIdx = apps.findIndex(a => a.id === application.id || (application.schemeId && a.schemeId === application.schemeId))
   
   let updated
+  let appToSync
   if (existingIdx >= 0) {
     updated = [...apps]
-    updated[existingIdx] = {
+    appToSync = {
       ...updated[existingIdx],
       ...application,
       lastUpdated: new Date().toISOString().split('T')[0]
     }
+    updated[existingIdx] = appToSync
   } else {
     const today = new Date()
     const formattedDate = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
-    const newApp = {
+    appToSync = {
       id: application.id || `app_${Date.now()}`,
       schemeId: application.schemeId,
       schemeName: application.schemeName,
@@ -414,11 +469,33 @@ export const saveApplication = (application) => {
       ],
       notes: application.notes || ''
     }
-    updated = [newApp, ...apps]
+    updated = [appToSync, ...apps]
   }
 
   localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_apps_updated'))
+
+  // Cloud sync if Supabase is connected
+  if (isSupabaseConfigured() && supabase) {
+    const user = getUser()
+    supabase.from('applications').upsert({
+      id: appToSync.id,
+      user_id: user?.id || null,
+      scheme_id: appToSync.schemeId,
+      scheme_name: appToSync.schemeName,
+      category: appToSync.category,
+      category_color: appToSync.categoryColor,
+      reference_no: appToSync.referenceNo,
+      status: appToSync.status,
+      applied_date: appToSync.appliedDate,
+      last_updated: appToSync.lastUpdated,
+      timeline: appToSync.timeline,
+      notes: appToSync.notes
+    }).then(({ error }) => {
+      if (error) console.warn('Supabase saveApplication error:', error)
+    })
+  }
+
   return updated
 }
 
@@ -465,6 +542,21 @@ export const updateApplicationStatus = (id, newStatus) => {
 
   localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_apps_updated'))
+
+  // Cloud sync if Supabase is connected
+  if (isSupabaseConfigured() && supabase) {
+    const updatedApp = updated.find(a => a.id === id)
+    if (updatedApp) {
+      supabase.from('applications').update({
+        status: newStatus,
+        timeline: updatedApp.timeline,
+        last_updated: updatedApp.lastUpdated
+      }).eq('id', id).then(({ error }) => {
+        if (error) console.warn('Supabase updateApplicationStatus error:', error)
+      })
+    }
+  }
+
   return updated
 }
 
@@ -473,5 +565,73 @@ export const deleteApplication = (id) => {
   const updated = apps.filter(a => a.id !== id)
   localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_apps_updated'))
+
+  // Cloud sync if Supabase is connected
+  if (isSupabaseConfigured() && supabase) {
+    supabase.from('applications').delete().eq('id', id).then(({ error }) => {
+      if (error) console.warn('Supabase deleteApplication error:', error)
+    })
+  }
+
   return updated
+}
+
+/* ─────────────────────────────────────────────
+   INITIAL SUPABASE CLOUD SYNC
+   Pulls down latest cloud records into local cache
+───────────────────────────────────────────── */
+export const syncWithSupabase = async () => {
+  if (!isSupabaseConfigured() || !supabase) return false
+  try {
+    // 1. Sync applications
+    const { data: appsData, error: appsError } = await supabase
+      .from('applications')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (!appsError && appsData && appsData.length > 0) {
+      const mappedApps = appsData.map(a => ({
+        id: a.id,
+        schemeId: a.scheme_id,
+        schemeName: a.scheme_name,
+        category: a.category,
+        categoryColor: a.category_color,
+        referenceNo: a.reference_no,
+        status: a.status,
+        appliedDate: a.applied_date,
+        lastUpdated: a.last_updated,
+        timeline: a.timeline,
+        notes: a.notes
+      }))
+      localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(mappedApps))
+      window.dispatchEvent(new Event('ns_apps_updated'))
+    }
+
+    // 2. Sync saved schemes
+    const { data: savedData, error: savedError } = await supabase
+      .from('saved_schemes')
+      .select('*')
+    
+    if (!savedError && savedData && savedData.length > 0) {
+      const mappedSaved = savedData.map(s => ({
+        id: s.scheme_id,
+        name: s.scheme_name,
+        category: s.category,
+        categoryColor: s.category_color,
+        type: s.type,
+        matchScore: s.match_score,
+        deadline: s.deadline,
+        description: s.description,
+        state: s.state,
+        savedDate: s.saved_date
+      }))
+      localStorage.setItem(KEYS.SAVED, JSON.stringify(mappedSaved))
+      window.dispatchEvent(new Event('ns_saved_updated'))
+    }
+
+    return true
+  } catch (err) {
+    console.warn('Sync with Supabase failed:', err)
+    return false
+  }
 }
