@@ -1,57 +1,60 @@
 import { useEffect, useRef, useState } from 'react'
+import { SCHEMES } from '../data/schemes'
 import './StatsSection.css'
 
 const statsData = [
   {
-    value: 500,
+    value: SCHEMES.length,
     suffix: '+',
-    label: 'Government Schemes',
-    sublabel: 'Across all categories',
+    label: 'Verified Schemes',
+    sublabel: 'Central, State & Top NGOs',
     icon: '📋',
     color: '#FF6B00',
     bg: 'rgba(255, 107, 0, 0.08)',
   },
   {
-    value: 5,
+    value: 7,
     suffix: '',
-    label: 'States Covered',
-    sublabel: 'Karnataka, TN, AP, Telangana, Kerala',
-    icon: '🗺️',
-    color: '#0B2D6B',
-    bg: 'rgba(11, 45, 107, 0.08)',
-  },
-  {
-    value: 10,
-    suffix: '+',
-    label: 'Scheme Categories',
-    sublabel: 'From education to housing',
+    label: 'Welfare Categories',
+    sublabel: 'Education, Health, Agriculture & more',
     icon: '🏷️',
     color: '#10B981',
     bg: 'rgba(16, 185, 129, 0.08)',
   },
   {
-    value: 1200,
-    suffix: '+',
-    label: 'Citizens Helped',
-    sublabel: 'And growing every day',
-    icon: '👥',
+    value: 4,
+    suffix: '',
+    label: 'Native Languages',
+    sublabel: 'English, ಕನ್ನಡ, తెలుగు, தமிழ்',
+    icon: '🗣️',
+    color: '#0B2D6B',
+    bg: 'rgba(11, 45, 107, 0.08)',
+  },
+  {
+    value: 100,
+    suffix: '%',
+    label: 'Free & Direct',
+    sublabel: 'Official portals with zero ads',
+    icon: '🛡️',
     color: '#7C3AED',
     bg: 'rgba(124, 58, 237, 0.08)',
   },
 ]
 
-const categories = [
-  { icon: '🎓', name: 'Education', count: '68 schemes', color: '#4F46E5' },
-  { icon: '🏥', name: 'Healthcare', count: '54 schemes', color: '#059669' },
-  { icon: '🌾', name: 'Agriculture', count: '82 schemes', color: '#D97706' },
-  { icon: '🏘️', name: 'Housing', count: '37 schemes', color: '#DC2626' },
-  { icon: '👩‍💼', name: 'Women', count: '45 schemes', color: '#DB2777' },
-  { icon: '👶', name: 'Child Welfare', count: '29 schemes', color: '#0891B2' },
-  { icon: '🧓', name: 'Senior Citizens', count: '22 schemes', color: '#7C3AED' },
-  { icon: '⚡', name: 'Energy', count: '18 schemes', color: '#65A30D' },
-  { icon: '🏭', name: 'Business', count: '48 schemes', color: '#EA580C' },
-  { icon: '🎨', name: 'Arts & Culture', count: '14 schemes', color: '#C026D3' },
+const categoryDefs = [
+  { icon: '🎓', name: 'Education', key: 'Education', color: '#4F46E5' },
+  { icon: '💼', name: 'Business & Startup', key: 'Business', color: '#EA580C' },
+  { icon: '🌾', name: 'Agriculture', key: 'Agriculture', color: '#D97706' },
+  { icon: '🏥', name: 'Healthcare', key: 'Healthcare', color: '#059669' },
+  { icon: '👩‍💼', name: 'Women Empowerment', key: 'Women Empowerment', color: '#DB2777' },
+  { icon: '🏘️', name: 'Housing', key: 'Housing', color: '#DC2626' },
+  { icon: '🍚', name: 'Food Security', key: 'Food Security', color: '#EA580C' },
 ]
+
+const categories = categoryDefs.map(cat => ({
+  ...cat,
+  count: `${SCHEMES.filter(s => s.category === cat.key).length} schemes`
+}))
 
 function CountUp({ target, suffix, isVisible }) {
   const [count, setCount] = useState(0)
@@ -103,12 +106,12 @@ const StatsSection = () => {
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-label">Impact & Reach</div>
+          <div className="section-label">Verified Platform Metrics</div>
           <h2 className="section-title">
-            Trusted by Thousands of <span className="text-gradient">Citizens</span>
+            Curated For <span className="text-gradient">Real Citizen Impact</span>
           </h2>
           <p className="section-subtitle">
-            Our platform covers schemes from Central and State governments, ensuring comprehensive coverage for every citizen.
+            Every scheme in our database is verified against official Government Gazettes, with direct links to application portals and zero advertisements.
           </p>
         </div>
 

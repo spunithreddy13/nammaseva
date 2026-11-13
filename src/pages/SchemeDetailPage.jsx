@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getSchemeById, getSimilarSchemes, checkCriterion, SCHEMES } from '../data/schemes'
-import { getProfile, calculateMatch, isSchemesSaved, saveScheme, removeSavedScheme } from '../utils/userStore'
+import { getProfile, calculateMatch, isSchemesSaved, saveScheme, removeSavedScheme, saveApplication, getApplications } from '../utils/userStore'
 import ApplyHelperBot from '../components/ApplyHelperBot'
 import './SchemeDetailPage.css'
 
@@ -84,10 +84,33 @@ const SchemeDetailPage = () => {
   const similar  = scheme ? getSimilarSchemes(scheme) : []
 
   const [saved, setSaved] = useState(scheme ? isSchemesSaved(scheme.id) : false)
+  const [applied, setApplied] = useState(() => {
+    return scheme ? getApplications().some(a => a.schemeId === Number(scheme.id)) : false
+  })
 
   useEffect(() => {
-    if (scheme) setSaved(isSchemesSaved(scheme.id))
+    if (scheme) {
+      setSaved(isSchemesSaved(scheme.id))
+      setApplied(getApplications().some(a => a.schemeId === Number(scheme.id)))
+    }
   }, [scheme])
+
+  const handleTrackApplication = () => {
+    if (!scheme) return
+    const defaultRef = `NS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
+    const ackNo = prompt('Enter your Portal Application / Reference No (or leave as generated):', defaultRef)
+    if (ackNo === null) return
+    saveApplication({
+      schemeId: scheme.id,
+      schemeName: scheme.name,
+      category: scheme.category,
+      categoryColor: scheme.categoryColor,
+      referenceNo: ackNo.trim() || defaultRef,
+      status: 'pending'
+    })
+    setApplied(true)
+    alert(`✅ Application logged! Reference "${ackNo.trim() || defaultRef}" is now tracked under "My Applications".`)
+  }
 
   const handleToggleSave = () => {
     if (!scheme) return
@@ -473,6 +496,19 @@ const SchemeDetailPage = () => {
 
           <button className="sdp-apply-btn-sidebar" style={{ marginTop: '8px', background: '#ecfdf5', color: '#059669', border: '1px solid #10b981' }} onClick={() => setShowHelperBot(true)}>
             Apply Helper 📋
+          </button>
+
+          <button 
+            className="sdp-apply-btn-sidebar" 
+            style={{ 
+              marginTop: '8px', 
+              background: applied ? '#f0fdf4' : '#eff6ff', 
+              color: applied ? '#16a34a' : '#1d4ed8', 
+              border: `1.5px solid ${applied ? '#22c55e' : '#3b82f6'}` 
+            }} 
+            onClick={handleTrackApplication}
+          >
+            {applied ? '✓ Tracked in Applications' : '➕ Track in Applications'}
           </button>
 
           <div className="sdp-sidebar-actions">

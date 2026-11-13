@@ -204,9 +204,9 @@ const LoginPage = () => {
 
             <div className="auth-brand__stats">
               {[
-                { icon: '📋', val: '500+', label: 'Schemes' },
-                { icon: '👥', val: '1,200+', label: 'Citizens' },
-                { icon: '🏛️', val: '5', label: 'States' },
+                { icon: '📋', val: '22+', label: 'Schemes' },
+                { icon: '🏷️', val: '7', label: 'Categories' },
+                { icon: '🗣️', val: '4', label: 'Languages' },
               ].map((s, i) => (
                 <div key={i} className="auth-brand__stat">
                   <div className="auth-brand__stat-icon">{s.icon}</div>

@@ -8,6 +8,7 @@ const KEYS = {
   PROFILE: 'ns_profile',
   NOTIFS:  'ns_notifications',
   SAVED:   'ns_saved_schemes',
+  APPLICATIONS: 'ns_applications',
 }
 
 /* ── Auth (name + email set at login/register) ── */
@@ -333,14 +334,13 @@ const MOCK_SAVED_SCHEMES = [
 export const getSavedSchemes = () => {
   try {
     const stored = localStorage.getItem(KEYS.SAVED)
-    if (stored) {
+    if (stored !== null) {
       const parsed = JSON.parse(stored)
       if (Array.isArray(parsed)) return parsed
     }
-    localStorage.setItem(KEYS.SAVED, JSON.stringify(MOCK_SAVED_SCHEMES))
-    return MOCK_SAVED_SCHEMES
+    return []
   } catch {
-    return MOCK_SAVED_SCHEMES
+    return []
   }
 }
 
@@ -363,4 +363,115 @@ export const removeSavedScheme = (id) => {
 export const isSchemesSaved = (id) => {
   const saved = getSavedSchemes()
   return saved.some(s => s.id === id)
+}
+
+/* ─────────────────────────────────────────────
+   REAL APPLICATION TRACKER STORE
+───────────────────────────────────────────── */
+
+export const getApplications = () => {
+  try {
+    const stored = localStorage.getItem(KEYS.APPLICATIONS)
+    if (stored !== null) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed)) return parsed
+    }
+    return []
+  } catch {
+    return []
+  }
+}
+
+export const saveApplication = (application) => {
+  const apps = getApplications()
+  const existingIdx = apps.findIndex(a => a.id === application.id || (application.schemeId && a.schemeId === application.schemeId))
+  
+  let updated
+  if (existingIdx >= 0) {
+    updated = [...apps]
+    updated[existingIdx] = {
+      ...updated[existingIdx],
+      ...application,
+      lastUpdated: new Date().toISOString().split('T')[0]
+    }
+  } else {
+    const today = new Date()
+    const formattedDate = today.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    const newApp = {
+      id: application.id || `app_${Date.now()}`,
+      schemeId: application.schemeId,
+      schemeName: application.schemeName,
+      category: application.category || 'General',
+      categoryColor: application.categoryColor || '#4F46E5',
+      appliedDate: application.appliedDate || today.toISOString().split('T')[0],
+      lastUpdated: today.toISOString().split('T')[0],
+      status: application.status || 'pending',
+      referenceNo: application.referenceNo || `NS-${today.getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+      timeline: application.timeline || [
+        { step: 'Applied', done: true, date: formattedDate },
+        { step: 'Under Review', done: false, date: '' },
+        { step: 'Decision', done: false, date: '' }
+      ],
+      notes: application.notes || ''
+    }
+    updated = [newApp, ...apps]
+  }
+
+  localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_apps_updated'))
+  return updated
+}
+
+export const updateApplicationStatus = (id, newStatus) => {
+  const apps = getApplications()
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+  const updated = apps.map(app => {
+    if (app.id !== id) return app
+    
+    let timeline = [...(app.timeline || [])]
+    if (newStatus === 'under_review') {
+      timeline = [
+        { step: 'Applied', done: true, date: timeline[0]?.date || today },
+        { step: 'Under Review', done: true, date: today },
+        { step: 'Decision', done: false, date: '' }
+      ]
+    } else if (newStatus === 'approved') {
+      timeline = [
+        { step: 'Applied', done: true, date: timeline[0]?.date || today },
+        { step: 'Under Review', done: true, date: timeline[1]?.date || today },
+        { step: 'Approved', done: true, date: today }
+      ]
+    } else if (newStatus === 'rejected') {
+      timeline = [
+        { step: 'Applied', done: true, date: timeline[0]?.date || today },
+        { step: 'Under Review', done: true, date: timeline[1]?.date || today },
+        { step: 'Rejected', done: true, date: today }
+      ]
+    } else {
+      timeline = [
+        { step: 'Applied', done: true, date: timeline[0]?.date || today },
+        { step: 'Under Review', done: false, date: '' },
+        { step: 'Decision', done: false, date: '' }
+      ]
+    }
+
+    return {
+      ...app,
+      status: newStatus,
+      timeline,
+      lastUpdated: new Date().toISOString().split('T')[0]
+    }
+  })
+
+  localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_apps_updated'))
+  return updated
+}
+
+export const deleteApplication = (id) => {
+  const apps = getApplications()
+  const updated = apps.filter(a => a.id !== id)
+  localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
+  window.dispatchEvent(new Event('ns_apps_updated'))
+  return updated
 }

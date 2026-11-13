@@ -3,7 +3,7 @@ import Navbar from '../components/Navbar'
 import HeroSection from '../components/HeroSection'
 import HowItWorks from '../components/HowItWorks'
 import StatsSection from '../components/StatsSection'
-import Testimonials from '../components/Testimonials'
+import AlgorithmSection from '../components/AlgorithmSection'
 import Footer from '../components/Footer'
 import './LandingPage.css'
 
@@ -14,7 +14,7 @@ const LandingPage = () => {
       <HeroSection />
       <HowItWorks />
       <StatsSection />
-      <Testimonials />
+      <AlgorithmSection />
       <CTABanner />
       <Footer />
     </div>
@@ -36,7 +36,7 @@ const CTABanner = () => (
             Don't Miss Out on Benefits You Deserve
           </h2>
           <p className="cta-banner__subtitle">
-            The average citizen misses ₹40,000+ in annual government benefits simply because they don't know what they qualify for.
+            Many eligible citizens miss crucial government benefits and scholarships simply because they don't know what they qualify for.
             <strong> NammaSeva changes that.</strong>
           </p>
 

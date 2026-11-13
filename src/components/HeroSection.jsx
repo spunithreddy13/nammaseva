@@ -31,16 +31,16 @@ const HeroSection = () => {
   const particles = Array.from({ length: 18 }, (_, i) => i)
 
   const badges = [
-    { icon: '🏛️', text: 'Karnataka' },
-    { icon: '📋', text: '500+ Schemes' },
+    { icon: '🏛️', text: 'Central & State' },
+    { icon: '📋', text: '22+ Verified Schemes' },
     { icon: '⚡', text: 'Instant Match' },
   ]
 
   const floatingCards = [
-    { icon: '🎓', title: 'Education', schemes: '42 Schemes', color: '#4F46E5' },
-    { icon: '🏥', title: 'Healthcare', schemes: '38 Schemes', color: '#059669' },
-    { icon: '🌾', title: 'Agriculture', schemes: '56 Schemes', color: '#D97706' },
-    { icon: '🏘️', title: 'Housing', schemes: '29 Schemes', color: '#DC2626' },
+    { icon: '🎓', title: 'Education', schemes: '9 Schemes', color: '#4F46E5' },
+    { icon: '💼', title: 'Business', schemes: '4 Schemes', color: '#EA580C' },
+    { icon: '🌾', title: 'Agriculture', schemes: '3 Schemes', color: '#D97706' },
+    { icon: '🏥', title: 'Healthcare', schemes: '2 Schemes', color: '#059669' },
   ]
 
   return (

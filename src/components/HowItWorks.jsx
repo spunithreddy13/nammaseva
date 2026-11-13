@@ -31,7 +31,7 @@ const steps = [
       </svg>
     ),
     title: 'Get AI Recommendations',
-    description: 'Our smart algorithm matches your profile with 500+ schemes and ranks them by relevance and benefit amount.',
+    description: 'Our smart algorithm matches your profile with verified government & NGO schemes, ranking them by eligibility and benefit amount.',
     color: '#FF6B00',
     accent: 'rgba(255, 107, 0, 0.1)',
     details: ['Eligibility Analysis', 'Benefit Calculation', 'Priority Ranking', 'Personalized Score'],
@@ -156,7 +156,7 @@ const HowItWorks = () => {
             <div className="hiw__cta-icon">🚀</div>
             <div>
               <h3>Ready to find your schemes?</h3>
-              <p>Join 1,200+ citizens who have already discovered their government benefits</p>
+              <p>Discover verified government & NGO welfare benefits tailored to your profile</p>
             </div>
           </div>
           <a href="#register" className="btn btn--saffron btn--lg" id="hiw-cta-btn">

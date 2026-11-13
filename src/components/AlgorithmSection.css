@@ -1,0 +1,329 @@
+.algo-section {
+  padding: 80px 0;
+  background: #f8fafc;
+  position: relative;
+}
+
+.algo-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.algo-tab-btn {
+  background: white;
+  border: 1.5px solid #e2e8f0;
+  padding: 12px 24px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.algo-tab-btn:hover {
+  border-color: #cbd5e1;
+  color: #0f172a;
+  transform: translateY(-1px);
+}
+
+.algo-tab-btn--active {
+  background: #0B2D6B;
+  color: white;
+  border-color: #0B2D6B;
+  box-shadow: 0 6px 16px rgba(11, 45, 107, 0.2);
+}
+
+.algo-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .algo-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.algo-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(11, 45, 107, 0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+.algo-card--highlight {
+  border-color: #fed7aa;
+  background: linear-gradient(180deg, #fffbf5 0%, #ffffff 100%);
+}
+
+.algo-card__badge {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.algo-card__badge--red {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.algo-card__badge--green {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.algo-card__badge--blue {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.algo-card__badge--purple {
+  background: #faf5ff;
+  color: #9333ea;
+  border: 1px solid #e9d5ff;
+}
+
+.algo-card__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+.algo-card__desc {
+  font-size: 14.5px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.algo-rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.algo-rules-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.algo-rules-list strong {
+  display: block;
+  color: #0f172a;
+  margin-bottom: 2px;
+}
+
+.algo-rule-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.algo-flowchart {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.algo-flow-step {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.algo-flow-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0B2D6B;
+  background: #e0e7ff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.algo-flow-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.algo-flow-arrow {
+  color: #94a3b8;
+  font-weight: bold;
+}
+
+.algo-flow-result {
+  width: 100%;
+  background: #ecfdf5;
+  border: 1.5px solid #10b981;
+  color: #065f46;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.algo-code-block {
+  background: #0f172a;
+  color: #38bdf8;
+  padding: 18px;
+  border-radius: 12px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.algo-math-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #475569;
+}
+
+.algo-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.algo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.algo-dot--green { background: #22c55e; }
+.algo-dot--orange { background: #f97316; }
+.algo-dot--red { background: #ef4444; }
+
+.algo-sources-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.algo-source-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+}
+
+.algo-source-logo {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.algo-source-item strong {
+  display: block;
+  font-size: 14px;
+  color: #0B2D6B;
+}
+
+.algo-source-item span {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.algo-pillars {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.algo-pillar {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.algo-pillar__icon {
+  font-size: 24px;
+  background: #f1f5f9;
+  padding: 8px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.algo-pillar__content h4 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px 0;
+}
+
+.algo-pillar__content p {
+  font-size: 13.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.algo-qa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.algo-qa-item {
+  background: #f8fafc;
+  border-left: 3px solid #0B2D6B;
+  padding: 12px 16px;
+  border-radius: 0 8px 8px 0;
+}
+
+.algo-qa-item strong {
+  display: block;
+  font-size: 13.5px;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.algo-qa-item p {
+  font-size: 13px;
+  color: #475569;
+  margin: 0;
+  line-height: 1.5;
+}

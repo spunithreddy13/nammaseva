@@ -526,11 +526,11 @@ const RegisterPage = () => {
             </div>
 
             <div className="auth-trust-bar">
-              <div className="auth-trust-bar__item"><strong>1,200+</strong><span>Citizens</span></div>
+              <div className="auth-trust-bar__item"><strong>22+</strong><span>Verified Schemes</span></div>
               <div className="auth-trust-bar__divider" />
-              <div className="auth-trust-bar__item"><strong>500+</strong><span>Schemes</span></div>
+              <div className="auth-trust-bar__item"><strong>7</strong><span>Categories</span></div>
               <div className="auth-trust-bar__divider" />
-              <div className="auth-trust-bar__item"><strong>5</strong><span>States</span></div>
+              <div className="auth-trust-bar__item"><strong>4</strong><span>Languages</span></div>
             </div>
           </div>
         </div>
