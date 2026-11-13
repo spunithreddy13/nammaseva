@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getUser, getProfile, getProfileCompletion, calculateMatch, getOverallMatchScore, clearUser, getNotifications, saveScheme, removeSavedScheme, isSchemesSaved } from '../utils/userStore'
 import { SCHEMES, countByType } from '../data/schemes'
 import useTranslation from '../hooks/useTranslation'
+import useVoiceReader from '../hooks/useVoiceReader'
 import './DashboardPage.css'
 
 /* ═══════════════════════════════════════════
@@ -33,7 +34,7 @@ const MatchRing = ({ score, size = 88, matchLabel }) => {
 /* ═══════════════════════════════════════════
    SCHEME CARD
 ═══════════════════════════════════════════ */
-const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
+const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView, onSpeak, isSpeakingThis }) => {
   const { t } = useTranslation()
   const urgency = scheme.deadlineDays
     ? scheme.deadlineDays <= 20 ? 'urgent' : scheme.deadlineDays <= 50 ? 'soon' : ''
@@ -110,6 +111,15 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
             <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
               {t('checkEligibility')}
             </button>
+            <button
+              type="button"
+              className={`db-scheme-card__voice ${isSpeakingThis ? 'db-scheme-card__voice--active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); onSpeak(scheme); }}
+              title={isSpeakingThis ? t('stopListening') : t('listenScheme')}
+              aria-label={isSpeakingThis ? t('stopListening') : t('listenScheme')}
+            >
+              {isSpeakingThis ? '⏹️' : '🔊'}
+            </button>
             <a href={scheme.officialUrl} target="_blank" rel="noopener noreferrer" className="db-scheme-card__visit">
               {t('visitWebsite')}
             </a>
@@ -119,6 +129,15 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
             <button className="db-scheme-card__view" onClick={() => onView(scheme)}>
               {t('viewDetails')}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <button
+              type="button"
+              className={`db-scheme-card__voice ${isSpeakingThis ? 'db-scheme-card__voice--active' : ''}`}
+              onClick={(e) => { e.stopPropagation(); onSpeak(scheme); }}
+              title={isSpeakingThis ? t('stopListening') : t('listenScheme')}
+              aria-label={isSpeakingThis ? t('stopListening') : t('listenScheme')}
+            >
+              {isSpeakingThis ? '⏹️' : '🔊'}
             </button>
             <button
               className={`db-scheme-card__save ${isSchemesSaved(scheme.id) ? 'db-scheme-card__save--saved' : ''}`}
@@ -140,7 +159,8 @@ const SchemeCard = ({ scheme, matchScore, onSave, hasProfile, onView }) => {
 const DashboardPage = () => {
   const navigate = useNavigate()
   const notifRef = useRef(null)
-  const { t } = useTranslation()
+  const { t, lang } = useTranslation()
+  const { speak, isSpeaking, activeSpeechId } = useVoiceReader()
 
   // Category and gov type keys for translation
   const CATEGORIES_KEYS = [
@@ -251,6 +271,18 @@ const DashboardPage = () => {
   const handleSignOut = () => {
     clearUser()
     navigate('/')
+  }
+
+  const handleSpeakScheme = (scheme) => {
+    let text = `${scheme.name}. ${scheme.category}. ${scheme.benefit}. ${scheme.description}`
+    if (lang === 'kn') {
+      text = `${scheme.name}. ವರ್ಗ: ${scheme.category}. ಪ್ರಯೋಜನ: ${scheme.benefit}. ವಿವರಣೆ: ${scheme.description}`
+    } else if (lang === 'te') {
+      text = `${scheme.name}. వర్గం: ${scheme.category}. ప్రయోజనం: ${scheme.benefit}. వివరణ: ${scheme.description}`
+    } else if (lang === 'ta') {
+      text = `${scheme.name}. பிரிவு: ${scheme.category}. நன்மை: ${scheme.benefit}. விளக்கம்: ${scheme.description}`
+    }
+    speak(text, lang, scheme.id)
   }
 
   // Compute match scores for all schemes
@@ -591,6 +623,8 @@ const DashboardPage = () => {
                     hasProfile={!!profile}
                     onSave={handleSave}
                     onView={(s) => navigate(`/scheme/${s.id}`)}
+                    onSpeak={handleSpeakScheme}
+                    isSpeakingThis={isSpeaking && activeSpeechId === scheme.id}
                   />
                 ))}
               </div>

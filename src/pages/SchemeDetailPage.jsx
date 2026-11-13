@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { getSchemeById, getSimilarSchemes, checkCriterion, SCHEMES } from '../data/schemes'
 import { getProfile, calculateMatch, isSchemesSaved, saveScheme, removeSavedScheme, saveApplication, getApplications } from '../utils/userStore'
 import ApplyHelperBot from '../components/ApplyHelperBot'
+import KioskDocumentSlip from '../components/KioskDocumentSlip'
+import useTranslation from '../hooks/useTranslation'
+import useVoiceReader from '../hooks/useVoiceReader'
 import './SchemeDetailPage.css'
 
 /* ── Small helper components ── */
@@ -82,6 +85,10 @@ const SchemeDetailPage = () => {
   const profile  = getProfile()
   const matchScore = scheme ? calculateMatch(scheme.id, profile) : null
   const similar  = scheme ? getSimilarSchemes(scheme) : []
+
+  const { t, lang } = useTranslation()
+  const { speak, stop, isSpeaking } = useVoiceReader()
+  const [showKioskSlip, setShowKioskSlip] = useState(false)
 
   const [saved, setSaved] = useState(scheme ? isSchemesSaved(scheme.id) : false)
   const [applied, setApplied] = useState(() => {
@@ -180,6 +187,23 @@ const SchemeDetailPage = () => {
     }
   }
 
+  const handleToggleVoice = () => {
+    if (isSpeaking) {
+      stop()
+      return
+    }
+    const docLabels = scheme.documents?.map(d => d.label).join(', ') || ''
+    let speech = `${scheme.name}. ${scheme.category} scheme by ${scheme.gov} Government. Benefit: ${scheme.benefit}. About: ${scheme.description}. Required documents include: ${docLabels}.`
+    if (lang === 'kn') {
+      speech = `${scheme.name}. ${scheme.gov} ಸರ್ಕಾರದ ${scheme.category} ಯೋಜನೆ. ಪ್ರಯೋಜನ: ${scheme.benefit}. ವಿವರಣೆ: ${scheme.description}. ಅಗತ್ಯವಿರುವ ದಾಖಲೆಗಳು: ${docLabels}.`
+    } else if (lang === 'te') {
+      speech = `${scheme.name}. ${scheme.gov} ప్రభుత్వం యొక్క ${scheme.category} పథకం. ప్రయోజనం: ${scheme.benefit}. వివరణ: ${scheme.description}. అవసరమైన పత్రాలు: ${docLabels}.`
+    } else if (lang === 'ta') {
+      speech = `${scheme.name}. ${scheme.gov} அரசு வழங்கும் ${scheme.category} திட்டம். நன்மை: ${scheme.benefit}. விளக்கம்: ${scheme.description}. தேவையான ஆவணங்கள்: ${docLabels}.`
+    }
+    speak(speech, lang, scheme.id)
+  }
+
   const matchColor = matchScore === null ? '#94a3b8' : matchScore >= 75 ? '#22c55e' : matchScore >= 50 ? '#FF6B00' : '#f59e0b'
 
   return (
@@ -194,6 +218,14 @@ const SchemeDetailPage = () => {
           Back to Dashboard
         </button>
         <div className="sdp-topnav__actions">
+          <button 
+            type="button"
+            className={`sdp-action-btn ${isSpeaking ? 'sdp-action-btn--speaking' : ''}`}
+            onClick={handleToggleVoice}
+            title={isSpeaking ? t('stopListening') : t('listenScheme')}
+          >
+            {isSpeaking ? '⏹️ ' + t('stopListening') : '🔊 ' + t('listenScheme')}
+          </button>
           <button className={`sdp-action-btn ${saved ? 'sdp-action-btn--saved' : ''}`} onClick={handleToggleSave}>
             {saved ? '🔖 Saved' : '🏷️ Save'}
           </button>
@@ -360,11 +392,20 @@ const SchemeDetailPage = () => {
           {activeTab === 'documents' && (
             <div className="sdp-tab-content">
               <div className="sdp-section">
-                <div className="sdp-section__header-row">
+                <div className="sdp-section__header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <h2 className="sdp-section__title">Required Documents</h2>
-                  <span className="sdp-doc-progress">
-                    {checkedCount}/{scheme.documents.length} ready
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <button 
+                      type="button"
+                      className="sdp-kiosk-slip-btn"
+                      onClick={() => setShowKioskSlip(true)}
+                    >
+                      🖨️ {t('downloadKioskSlip')}
+                    </button>
+                    <span className="sdp-doc-progress">
+                      {checkedCount}/{scheme.documents.length} ready
+                    </span>
+                  </div>
                 </div>
                 <p className="sdp-section__subtitle">Check off the documents you already have ready.</p>
 
@@ -499,6 +540,20 @@ const SchemeDetailPage = () => {
           </button>
 
           <button 
+            type="button"
+            className="sdp-apply-btn-sidebar" 
+            style={{ 
+              marginTop: '8px', 
+              background: '#f8fafc', 
+              color: '#0B2D6B', 
+              border: '1.5px solid #0B2D6B' 
+            }} 
+            onClick={() => setShowKioskSlip(true)}
+          >
+            🖨️ {t('downloadKioskSlip')}
+          </button>
+
+          <button 
             className="sdp-apply-btn-sidebar" 
             style={{ 
               marginTop: '8px', 
@@ -554,6 +609,7 @@ const SchemeDetailPage = () => {
       )}
       
       {showHelperBot && <ApplyHelperBot scheme={scheme} onClose={() => setShowHelperBot(false)} />}
+      {showKioskSlip && <KioskDocumentSlip scheme={scheme} profile={profile} onClose={() => setShowKioskSlip(false)} />}
     </div>
   )
 }

@@ -66,6 +66,9 @@ const translations = {
     business: 'Business',
     womenEmpowerment: 'Women Empowerment',
     foodSecurity: 'Food Security',
+    listenScheme: 'Listen (Audio)',
+    stopListening: 'Stop Audio',
+    downloadKioskSlip: 'Download Kiosk Slip (PDF)',
   },
 
   kn: {
@@ -130,6 +133,9 @@ const translations = {
     business: 'ವ್ಯಾಪಾರ',
     womenEmpowerment: 'ಮಹಿಳಾ ಸಶಕ್ತೀಕರಣ',
     foodSecurity: 'ಆಹಾರ ಭದ್ರತೆ',
+    listenScheme: 'ವಿವರಣೆ ಕೇಳಿ (ಆಡಿಯೋ)',
+    stopListening: 'ನಿಲ್ಲಿಸಿ',
+    downloadKioskSlip: 'ಗ್ರಾಮ ಒನ್ ದಾಖಲೆ ಚೀಟಿ (PDF)',
   },
 
   te: {
@@ -194,6 +200,9 @@ const translations = {
     business: 'వ్యాపారం',
     womenEmpowerment: 'మహిళా సాధికారత',
     foodSecurity: 'ఆహార భద్రత',
+    listenScheme: 'ఆడియో వినండి',
+    stopListening: 'ఆపండి',
+    downloadKioskSlip: 'మీసేవ పత్రాల రసీదు (PDF)',
   },
 
   ta: {
@@ -258,6 +267,9 @@ const translations = {
     business: 'வணிகம்',
     womenEmpowerment: 'பெண் வலுவூட்டல்',
     foodSecurity: 'உணவு பாதுகாப்பு',
+    listenScheme: 'ஒலி விளக்கம் (கேளுங்கள்)',
+    stopListening: 'நிறுத்து',
+    downloadKioskSlip: 'இ-சேவை ஆவண ரசீது (PDF)',
   }
 }
 
