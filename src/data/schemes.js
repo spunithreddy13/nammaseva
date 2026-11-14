@@ -333,7 +333,7 @@ export const SCHEMES = [
     benefit: '₹10,000/year', benefitBreakdown: 'Full maintenance allowance & non-refundable fees reimbursement',
     benefitType: 'Financial Assistance',
     description: 'Dr. Ambedkar Post-Matric Scholarship provides financial support to Economically Weaker Section (EWS) and General Category students pursuing Post-Secondary and Post-Matriculation courses at recognized institutions.',
-    officialUrl: 'https://socialjustice.gov.in',
+    officialUrl: 'https://scholarships.gov.in',
     deadline: '2025-09-30', deadlineDays: 90,
     tags: ['General', 'EWS', 'Post-Matric', 'Higher Education'],
     eligibilityCriteria: [

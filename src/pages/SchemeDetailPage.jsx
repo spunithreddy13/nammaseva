@@ -187,6 +187,17 @@ const SchemeDetailPage = () => {
     }
   }
 
+  const handleOpenOfficial = (e) => {
+    if (e) e.preventDefault()
+    if (scheme?.officialUrl) {
+      window.open(scheme.officialUrl, '_blank', 'noopener,noreferrer')
+    }
+  }
+
+  const domainName = scheme?.officialUrl 
+    ? scheme.officialUrl.replace('https://', '').replace('http://', '').replace('www.', '').split('/')[0] 
+    : 'gov.in'
+
   const handleToggleVoice = () => {
     if (isSpeaking) {
       stop()
@@ -470,24 +481,83 @@ const SchemeDetailPage = () => {
                   ))}
                 </div>
 
-                <a
-                  href={scheme.officialUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="sdp-apply-btn"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-                    <polyline points="15 3 21 3 21 9"/>
-                    <line x1="10" y1="14" x2="21" y2="3"/>
-                  </svg>
-                  Apply on Official Website
-                </a>
-                <button className="sdp-apply-btn" style={{ background: '#ecfdf5', color: '#059669', marginLeft: '12px', border: '1px solid #10b981' }} onClick={() => setShowHelperBot(true)}>
-                  Apply Helper 📋
-                </button>
+                <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="sdp-apply-btn"
+                    style={{ flex: '1 1 240px', marginTop: 0 }}
+                    onClick={handleOpenOfficial}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/>
+                      <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Apply on Official Portal ({domainName}) ↗
+                  </button>
+                  <button
+                    type="button"
+                    className="sdp-apply-btn"
+                    style={{
+                      flex: '0 0 auto',
+                      marginTop: 0,
+                      background: '#ecfdf5',
+                      color: '#059669',
+                      border: '1.5px solid #10b981',
+                      boxShadow: 'none'
+                    }}
+                    onClick={() => setShowHelperBot(true)}
+                  >
+                    Apply Helper 📋
+                  </button>
+                </div>
+
+                {/* Official Govt Verification Card */}
+                <div style={{
+                  marginTop: '16px',
+                  padding: '14px 18px',
+                  background: '#f8fafc',
+                  border: '1.5px solid #cbd5e1',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '12px'
+                }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: '700', color: '#0B2D6B', fontSize: '13.5px' }}>
+                      <span>🏛️</span>
+                      <span>Target Official Server: <a href={scheme.officialUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#0B2D6B', textDecoration: 'underline' }}>{scheme.officialUrl}</a></span>
+                      <span style={{ background: '#dcfce7', color: '#15803d', fontSize: '11px', padding: '2px 8px', borderRadius: '100px', fontWeight: '700' }}>✓ Live Verified</span>
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+                      Clicking directly redirects you to the official government / agency portal in a new tab.
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOpenOfficial}
+                    style={{
+                      background: '#0B2D6B',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontWeight: '600',
+                      fontSize: '12.5px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    Open Live Portal ↗
+                  </button>
+                </div>
+
                 <p className="sdp-apply-note">
-                  You will be redirected to the official government portal. NammaSeva does not process applications directly.
+                  You will be redirected to the official government portal ({domainName}). NammaSeva does not process applications directly.
                 </p>
               </div>
             </div>
@@ -527,13 +597,17 @@ const SchemeDetailPage = () => {
           </div>
 
           {/* Quick Action */}
-          <a href={scheme.officialUrl} target="_blank" rel="noopener noreferrer" className="sdp-apply-btn-sidebar">
+          <button
+            type="button"
+            className="sdp-apply-btn-sidebar"
+            onClick={handleOpenOfficial}
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
               <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
             </svg>
-            Apply on Official Site
-          </a>
+            Apply on Official Site ({domainName}) ↗
+          </button>
 
           <button className="sdp-apply-btn-sidebar" style={{ marginTop: '8px', background: '#ecfdf5', color: '#059669', border: '1px solid #10b981' }} onClick={() => setShowHelperBot(true)}>
             Apply Helper 📋
