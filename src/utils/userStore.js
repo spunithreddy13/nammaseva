@@ -13,6 +13,14 @@ const KEYS = {
   APPLICATIONS: 'ns_applications',
 }
 
+/* ── Helper: Normalized Persistent User Key ── */
+export const getUserKey = (user) => {
+  const u = user || getUser()
+  if (!u) return 'default_user'
+  const raw = u.email || u.phone || u.id || u.name || 'default_user'
+  return String(raw).toLowerCase().trim().replace(/[^a-z0-9]/g, '_')
+}
+
 /* ── Auth (name + email set at login/register) ── */
 export const getUser = () => {
   try { return JSON.parse(localStorage.getItem(KEYS.USER)) || null }
@@ -21,20 +29,70 @@ export const getUser = () => {
 
 export const setUser = (data) => {
   localStorage.setItem(KEYS.USER, JSON.stringify(data))
+
+  // Seamlessly restore this user's profile and tracked records
+  const key = getUserKey(data)
+  try {
+    const userProfileStr = localStorage.getItem(`ns_profile_${key}`) || localStorage.getItem('ns_last_known_profile')
+    if (userProfileStr) {
+      localStorage.setItem(KEYS.PROFILE, userProfileStr)
+    }
+    const userSavedStr = localStorage.getItem(`ns_saved_${key}`)
+    if (userSavedStr) {
+      localStorage.setItem(KEYS.SAVED, userSavedStr)
+    }
+    const userAppsStr = localStorage.getItem(`ns_apps_${key}`)
+    if (userAppsStr) {
+      localStorage.setItem(KEYS.APPLICATIONS, userAppsStr)
+    }
+  } catch (err) {
+    console.warn('Could not restore user profile on login:', err)
+  }
 }
 
 /* ── Profile (filled in profile setup wizard) ── */
 export const getProfile = () => {
-  try { return JSON.parse(localStorage.getItem(KEYS.PROFILE)) || null }
-  catch { return null }
+  try {
+    const direct = JSON.parse(localStorage.getItem(KEYS.PROFILE))
+    if (direct && Object.keys(direct).length > 0) return direct
+
+    // 1. Look up user-specific profile
+    const user = getUser()
+    const key = getUserKey(user)
+    if (key) {
+      const userProfileStr = localStorage.getItem(`ns_profile_${key}`)
+      if (userProfileStr) {
+        localStorage.setItem(KEYS.PROFILE, userProfileStr)
+        return JSON.parse(userProfileStr)
+      }
+    }
+
+    // 2. Fallback to last known profile on this device
+    const lastKnown = localStorage.getItem('ns_last_known_profile')
+    if (lastKnown) {
+      localStorage.setItem(KEYS.PROFILE, lastKnown)
+      return JSON.parse(lastKnown)
+    }
+
+    return null
+  } catch {
+    return null
+  }
 }
 
 export const setProfile = (data) => {
   localStorage.setItem(KEYS.PROFILE, JSON.stringify(data))
 
+  // Persist permanently per user key + device fallback so logout NEVER erases it
+  const user = getUser()
+  const key = getUserKey(user)
+  if (key) {
+    localStorage.setItem(`ns_profile_${key}`, JSON.stringify(data))
+  }
+  localStorage.setItem('ns_last_known_profile', JSON.stringify(data))
+
   // Cloud sync if Supabase is connected
   if (isSupabaseConfigured() && supabase) {
-    const user = getUser()
     if (user?.id) {
       supabase.from('profiles').upsert({
         id: user.id,
@@ -72,8 +130,25 @@ export const getProfileCompletion = () => {
 
 /* ── Sign out ── */
 export const clearUser = () => {
+  // Ensure current profile & data are securely preserved under user key before clearing session
+  const user = getUser()
+  const key = getUserKey(user)
+  const currentProfile = getProfile()
+  if (currentProfile && key) {
+    localStorage.setItem(`ns_profile_${key}`, JSON.stringify(currentProfile))
+    localStorage.setItem('ns_last_known_profile', JSON.stringify(currentProfile))
+  }
+  const currentSaved = localStorage.getItem(KEYS.SAVED)
+  if (currentSaved && key) {
+    localStorage.setItem(`ns_saved_${key}`, currentSaved)
+  }
+  const currentApps = localStorage.getItem(KEYS.APPLICATIONS)
+  if (currentApps && key) {
+    localStorage.setItem(`ns_apps_${key}`, currentApps)
+  }
+
+  // Clear session pointers only
   localStorage.removeItem(KEYS.USER)
-  localStorage.removeItem(KEYS.PROFILE)
   localStorage.removeItem(KEYS.NOTIFS)
 }
 
@@ -376,6 +451,8 @@ export const saveScheme = (scheme) => {
   const item = { ...scheme, savedDate: new Date().toISOString().split('T')[0] }
   const updated = [...saved, item]
   localStorage.setItem(KEYS.SAVED, JSON.stringify(updated))
+  const key = getUserKey()
+  if (key) localStorage.setItem(`ns_saved_${key}`, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_saved_updated'))
 
   // Cloud sync if Supabase is connected
@@ -403,6 +480,8 @@ export const removeSavedScheme = (id) => {
   const saved = getSavedSchemes()
   const updated = saved.filter(s => s.id !== id)
   localStorage.setItem(KEYS.SAVED, JSON.stringify(updated))
+  const key = getUserKey()
+  if (key) localStorage.setItem(`ns_saved_${key}`, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_saved_updated'))
 
   // Cloud sync if Supabase is connected
@@ -473,6 +552,8 @@ export const saveApplication = (application) => {
   }
 
   localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
+  const key = getUserKey()
+  if (key) localStorage.setItem(`ns_apps_${key}`, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_apps_updated'))
 
   // Cloud sync if Supabase is connected
@@ -541,6 +622,8 @@ export const updateApplicationStatus = (id, newStatus) => {
   })
 
   localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
+  const key = getUserKey()
+  if (key) localStorage.setItem(`ns_apps_${key}`, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_apps_updated'))
 
   // Cloud sync if Supabase is connected
@@ -564,6 +647,8 @@ export const deleteApplication = (id) => {
   const apps = getApplications()
   const updated = apps.filter(a => a.id !== id)
   localStorage.setItem(KEYS.APPLICATIONS, JSON.stringify(updated))
+  const key = getUserKey()
+  if (key) localStorage.setItem(`ns_apps_${key}`, JSON.stringify(updated))
   window.dispatchEvent(new Event('ns_apps_updated'))
 
   // Cloud sync if Supabase is connected
